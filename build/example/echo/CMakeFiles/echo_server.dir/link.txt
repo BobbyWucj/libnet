@@ -1,1 +1,0 @@
-/bin/x86_64-linux-gnu-g++-9  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g  -rdynamic CMakeFiles/echo_server.dir/EchoServer.cpp.o  -o ../../bin/echo_server  ../../lib/liblibnet.a -lpthread 
