@@ -1,0 +1,87 @@
+[
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/Acceptor.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/Acceptor.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/Acceptor.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/Buffer.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/Buffer.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/Buffer.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/Channel.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/Channel.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/Channel.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/Connector.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/Connector.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/Connector.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/EPoller.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/EPoller.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/EPoller.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/EventLoop.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/EventLoop.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/EventLoop.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/EventLoopThread.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/EventLoopThread.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/EventLoopThread.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/InetAddress.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/InetAddress.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/InetAddress.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-gcc-9  -I/home/bobbywu/Desktop/Developer/libnet  -g   -o CMakeFiles/libnet.dir/Logger.c.o   -c /home/bobbywu/Desktop/Developer/libnet/libnet/Logger.c",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/Logger.c"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/TcpClient.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/TcpClient.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/TcpClient.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/TcpConnection.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/TcpConnection.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/TcpConnection.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/TcpServer.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/TcpServer.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/TcpServer.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/TcpServerSingle.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/TcpServerSingle.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/TcpServerSingle.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/ThreadPool.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/ThreadPool.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/ThreadPool.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/libnet",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/libnet.dir/TimerQueue.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/libnet/TimerQueue.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/libnet/TimerQueue.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/example/echo",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/echo_client.dir/EchoClient.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/example/echo/EchoClient.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/example/echo/EchoClient.cpp"
+},
+{
+  "directory": "/home/bobbywu/Desktop/Developer/libnet/build/example/echo",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/bobbywu/Desktop/Developer/libnet  -Wall -Wextra -Werror -Wconversion -Wno-unused-parameter -Wold-style-cast -Woverloaded-virtual -Wpointer-arith -Wshadow -Wwrite-strings -march=native -std=c++17 -rdynamic -g   -o CMakeFiles/echo_server.dir/EchoServer.cpp.o -c /home/bobbywu/Desktop/Developer/libnet/example/echo/EchoServer.cpp",
+  "file": "/home/bobbywu/Desktop/Developer/libnet/example/echo/EchoServer.cpp"
+}
+]
