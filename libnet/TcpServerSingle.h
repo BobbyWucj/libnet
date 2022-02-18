@@ -8,7 +8,8 @@
 #include <memory>
 #include <unordered_set>
 
-namespace libnet {
+namespace libnet 
+{
 
 class EventLoop;
 
@@ -19,11 +20,14 @@ public:
 
     void start();
 
-    void setConnectionCallback(const ConnectionCallback &connectionCallback) { connectionCallback_ = connectionCallback; }
+    void setConnectionCallback(const ConnectionCallback &connectionCallback) 
+    { connectionCallback_ = connectionCallback; }
 
-    void setMessageCallback(const MessageCallback &messageCallback) { messageCallback_ = messageCallback; }
+    void setMessageCallback(const MessageCallback &messageCallback) 
+    { messageCallback_ = messageCallback; }
 
-    void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) { writeCompleteCallback_ = writeCompleteCallback; }
+    void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) 
+    { writeCompleteCallback_ = writeCompleteCallback; }
 
 private:
     void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
@@ -39,6 +43,6 @@ private:
     WriteCompleteCallback       writeCompleteCallback_;
 };
 
-}
+} // namespace libnet
 
 #endif // TCPSERVERSINGLE_H

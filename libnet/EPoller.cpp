@@ -22,6 +22,7 @@ EPoller::~EPoller() {
     ::close(epollfd_);
 }
 
+// return activeChannels to EventLoop::loop
 void EPoller::poll(ChannelList& activeChannels, int timeout) {
     loop_->assertInLoopThread();
     int max_events = static_cast<int>(events_.size());
@@ -44,6 +45,7 @@ void EPoller::poll(ChannelList& activeChannels, int timeout) {
     }
 }
 
+// onConnection or onDisconnection or onModify
 void EPoller::updateChannel(Channel* channel) {
     loop_->assertInLoopThread();
     int op = 0;

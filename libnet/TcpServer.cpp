@@ -58,9 +58,11 @@ void TcpServer::startInLoop() {
     baseServer_->setMessageCallback(messageCallback_);
     baseServer_->setWriteCompleteCallback(writeCompleteCallback_);
 
+    // main thread
     threadInitCallback_(0);
     baseServer_->start();
 
+    // create numThreads-1 threads and loop
     for (size_t i = 1; i < numThreads_; ++i) {
         auto thread = new std::thread([this, i]()
                                      {
@@ -93,5 +95,7 @@ void TcpServer::runInThread(const size_t index) {
     threadInitCallback_(index);
     server.start();
     loop.loop();
+
+    // stop looping
     eventLoops_[index] = nullptr;
 }
