@@ -1,5 +1,5 @@
-#ifndef EVENTLOOP_H
-#define EVENTLOOP_H
+#ifndef LIBNET_EVENTLOOP_H
+#define LIBNET_EVENTLOOP_H
 
 #include <atomic>
 #include <thread>
@@ -77,4 +77,4 @@ private:
 
 }
 
-#endif // EVENTLOOP_H
+#endif // LIBNET_EVENTLOOP_H

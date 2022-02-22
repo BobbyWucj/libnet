@@ -1,5 +1,5 @@
-#ifndef TCPSERVER_H
-#define TCPSERVER_H
+#ifndef LIBNET_TCPSERVER_H
+#define LIBNET_TCPSERVER_H
 
 #include "Callbacks.h"
 #include "InetAddress.h"
@@ -67,4 +67,4 @@ private:
 
 }
 
-#endif // TCPSERVER_H
+#endif // LIBNET_TCPSERVER_H

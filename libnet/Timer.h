@@ -1,5 +1,5 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef LIBNET_TIMER_H
+#define LIBNET_TIMER_H
 
 #include <cassert>
 #include "Callbacks.h"
@@ -52,4 +52,4 @@ private:
 
 } // namespace libnet
 
-#endif // TIMER_H
+#endif // LIBNET_TIMER_H

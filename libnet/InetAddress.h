@@ -1,5 +1,5 @@
-#ifndef INETADDRESS_H
-#define INETADDRESS_H
+#ifndef LIBNET_INETADDRESS_H
+#define LIBNET_INETADDRESS_H
 
 #include <cstdint>
 #include <string>
@@ -32,4 +32,4 @@ private:
 
 }
 
-#endif // INETADDRESS_H
+#endif // LIBNET_INETADDRESS_H

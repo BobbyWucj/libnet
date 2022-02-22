@@ -1,5 +1,5 @@
-#ifndef CONNECTOR_H
-#define CONNECTOR_H
+#ifndef LIBNET_CONNECTOR_H
+#define LIBNET_CONNECTOR_H
 
 #include "Callbacks.h"
 #include "Channel.h"
@@ -43,4 +43,4 @@ private:
 
 }
 
-#endif // CONNECTOR_H
+#endif // LIBNET_CONNECTOR_H

@@ -1,5 +1,5 @@
-#ifndef TIMERQUEUE_H
-#define TIMERQUEUE_H
+#ifndef LIBNET_TIMERQUEUE_H
+#define LIBNET_TIMERQUEUE_H
 
 #include <chrono>
 #include <cstdint>
@@ -49,4 +49,4 @@ private:
 } // namespace libnet
 
 
-#endif // TIMERQUEUE_H
+#endif // LIBNET_TIMERQUEUE_H

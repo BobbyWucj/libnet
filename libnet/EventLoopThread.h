@@ -1,5 +1,5 @@
-#ifndef EVENTLOOPTHREAD_H
-#define EVENTLOOPTHREAD_H
+#ifndef LIBNET_EVENTLOOPTHREAD_H
+#define LIBNET_EVENTLOOPTHREAD_H
 
 #include <thread>
 #include "CountDownLatch.h"
@@ -30,4 +30,4 @@ private:
 } // namespace libnet
 
 
-#endif // EVENTLOOPTHREAD_H
+#endif // LIBNET_EVENTLOOPTHREAD_H

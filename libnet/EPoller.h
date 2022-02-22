@@ -1,5 +1,5 @@
-#ifndef EPOLLER_H
-#define EPOLLER_H
+#ifndef LIBNET_EPOLLER_H
+#define LIBNET_EPOLLER_H
 
 #include <vector>
 #include "noncopyable.h"
@@ -33,4 +33,4 @@ private:
 
 } // namespace of libnet
 
-#endif // EPOLLER_H
+#endif // LIBNET_EPOLLER_H

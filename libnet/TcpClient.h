@@ -1,5 +1,5 @@
-#ifndef TCPCLIENT_H
-#define TCPCLIENT_H
+#ifndef LIBNET_TCPCLIENT_H
+#define LIBNET_TCPCLIENT_H
 
 #include "Callbacks.h"
 #include "Channel.h"
@@ -52,4 +52,4 @@ private:
 
 }
 
-#endif // TCPCLIENT_H
+#endif // LIBNET_TCPCLIENT_H

@@ -1,5 +1,5 @@
-#ifndef ACCEPTOR_H
-#define ACCEPTOR_H
+#ifndef LIBNET_ACCEPTOR_H
+#define LIBNET_ACCEPTOR_H
 
 #include "Callbacks.h"
 #include "noncopyable.h"
@@ -40,4 +40,4 @@ private:
 } // namespace libnet
 
 
-#endif // ACCEPTOR_H
+#endif // LIBNET_ACCEPTOR_H

@@ -1,5 +1,5 @@
-#ifndef TCPCONNECTION_H
-#define TCPCONNECTION_H
+#ifndef LIBNET_TCPCONNECTION_H
+#define LIBNET_TCPCONNECTION_H
 
 
 #include "Callbacks.h"
@@ -111,4 +111,4 @@ private:
 
 }
 
-#endif // TCPCONNECTION_H
+#endif // LIBNET_TCPCONNECTION_H

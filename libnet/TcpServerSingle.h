@@ -1,5 +1,5 @@
-#ifndef TCPSERVERSINGLE_H
-#define TCPSERVERSINGLE_H
+#ifndef LIBNET_TCPSERVERSINGLE_H
+#define LIBNET_TCPSERVERSINGLE_H
 
 #include "Acceptor.h"
 #include "Callbacks.h"
@@ -45,4 +45,4 @@ private:
 
 } // namespace libnet
 
-#endif // TCPSERVERSINGLE_H
+#endif // LIBNET_TCPSERVERSINGLE_H

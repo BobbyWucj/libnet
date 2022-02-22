@@ -1,5 +1,5 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef LIBNET_BUFFER_H
+#define LIBNET_BUFFER_H
 
 #include <algorithm>
 #include <cassert>
@@ -249,4 +249,4 @@ private:
 
 } // namespace libnet
 
-#endif // BUFFER_H
+#endif // LIBNET_BUFFER_H

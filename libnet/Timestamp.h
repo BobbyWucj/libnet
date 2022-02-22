@@ -1,5 +1,5 @@
-#ifndef TIMESTAMP_H
-#define TIMESTAMP_H
+#ifndef LIBNET_TIMESTAMP_H
+#define LIBNET_TIMESTAMP_H
 
 #include <bits/types/timer_t.h>
 #include <chrono>
@@ -60,4 +60,4 @@ inline void IntervalTypeCheck(T) {
 } // namespace libnet
 
 
-#endif // TIMESTAMP_H
+#endif // LIBNET_TIMESTAMP_H

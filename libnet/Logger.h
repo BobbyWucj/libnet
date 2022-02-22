@@ -1,5 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LIBNET_LOGGER_H
+#define LIBNET_LOGGER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,4 +57,4 @@ LOG_BASE(LOG_LEVEL_WARN, 0, fmt, ##__VA_ARGS__)
 }
 #endif
 
-#endif //LOGGER_H
+#endif // LIBNET_LOGGER_H

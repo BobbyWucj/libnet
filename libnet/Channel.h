@@ -1,5 +1,5 @@
-#ifndef CHANNEL_H
-#define CHANNEL_H
+#ifndef LIBNET_CHANNEL_H
+#define LIBNET_CHANNEL_H
 
 #include <functional>
 #include <memory>
@@ -82,4 +82,4 @@ private:
 
 } // namespace of libnet
 
-#endif // CHANNEL_H
+#endif // LIBNET_CHANNEL_H

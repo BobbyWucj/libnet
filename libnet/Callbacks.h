@@ -1,5 +1,5 @@
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef LIBNET_CALLBACKS_H
+#define LIBNET_CALLBACKS_H
 
 #include <functional>
 #include <memory>
@@ -37,4 +37,4 @@ void defaultMessageCallback(const TcpConnectionPtr &conn, Buffer &buffer);
 
 } // namespace libnet
 
-#endif // CALLBACKS_H
+#endif // LIBNET_CALLBACKS_H
