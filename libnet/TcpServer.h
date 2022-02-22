@@ -8,6 +8,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -23,7 +24,7 @@ class TcpServer : noncopyable
 public:
     TcpServer(EventLoop* loop, const InetAddress& local);
     ~TcpServer();
-    
+
     void setNumThreads(size_t numThreads);
 
     void start();
@@ -32,6 +33,10 @@ public:
     void setConnectionCallback(const ConnectionCallback &connectionCallback) { connectionCallback_ = connectionCallback; }
     void setMessageCallback(const MessageCallback &messageCallback) { messageCallback_ = messageCallback; }
     void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) { writeCompleteCallback_ = writeCompleteCallback; }
+
+    EventLoop* getLoop() const { return baseLoop_; }
+
+    const std::string& ipPort() const { return ipPort_; }
 
 private:
     void startInLoop();
@@ -49,6 +54,7 @@ private:
     size_t                          numThreads_;
     std::atomic<bool>               started_;
     InetAddress                     local_;
+    const std::string               ipPort_;
     mutable std::mutex              mutex_;
     mutable std::condition_variable cond_;
 

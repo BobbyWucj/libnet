@@ -63,7 +63,8 @@ TcpConnection::~TcpConnection()
 }
 
 void TcpConnection::connectionEstablished() {
-    assert(state_.exchange(kConnected) == kConnecting);
+    auto old_state = state_.exchange(kConnected);
+    assert(old_state == kConnecting);(void)old_state;
     channel_->tie(shared_from_this());
     channel_->enableReading();
 }
@@ -263,7 +264,8 @@ void TcpConnection::handleWrite() {
 
 void TcpConnection::handleClose() {
     loop_->assertInLoopThread();
-    assert(state_.exchange(kDisconnected) <= kDisconnecting);
+    auto old_state = state_.exchange(kDisconnected);
+    assert(old_state <= kDisconnecting);(void)old_state;
     loop_->removeChannel(channel_.get());
     closeCallback_(this->shared_from_this());
 }

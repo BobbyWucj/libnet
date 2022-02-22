@@ -19,6 +19,15 @@ namespace
 
 __thread EventLoop* t_loopInThisThread = nullptr;
 
+class IgnoreSigPipe {
+public:
+    IgnoreSigPipe() {
+        ::signal(SIGPIPE, SIG_IGN);
+    }
+};
+
+IgnoreSigPipe ignoreSigPipe;
+
 } // anonymous namespace
 
 EventLoop::EventLoop()
@@ -58,7 +67,14 @@ void EventLoop::loop() {
     quit_ = false;
     while(!quit_) {
         activeChannels_.clear();
-        poller_->poll(activeChannels_, getNextTimeout());
+
+        auto nextTimeout = getNextTimeout();
+        if (nextTimeout) {
+            poller_->poll(activeChannels_, nextTimeout);
+        } else {
+            poller_->poll(activeChannels_);
+        }
+        
         for(auto &channel : activeChannels_) {
             channel->handleEvents();
         }

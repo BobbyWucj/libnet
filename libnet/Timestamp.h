@@ -1,6 +1,7 @@
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 
+#include <bits/types/timer_t.h>
 #include <chrono>
 
 namespace libnet
@@ -22,6 +23,10 @@ namespace clock
 
 inline Timestamp now() {
     return system_clock::now();
+}
+
+inline time_t nowFormated() {
+    return system_clock::to_time_t(system_clock::now());
 }
 
 inline Timestamp nowAfter(Nanoseconds interval) {

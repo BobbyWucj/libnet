@@ -35,5 +35,6 @@ void TcpServerSingle::newConnection(int connfd, const InetAddress& local, const 
 
 void TcpServerSingle::closeConnection(const TcpConnectionPtr& connPtr) {
     loop_->assertInLoopThread();
-    assert(connections_.erase(connPtr) == 1);
+    auto ret = connections_.erase(connPtr);
+    assert(ret == 1);(void)ret;
 }

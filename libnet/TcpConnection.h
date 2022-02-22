@@ -12,6 +12,7 @@
 #include <atomic>
 #include <cstddef>
 #include <string>
+#include <any>
 
 namespace libnet
 {
@@ -66,6 +67,10 @@ public:
     const Buffer& inputBuffer() const { return *inputBuffer_; }
     const Buffer& outputBuffer() const { return *outputBuffer_; }
 
+    const std::any& getContext() const { return context_; }
+    std::any* getMutableContext() { return &context_; }
+    void setContext(const std::any& context) { context_ = context; }
+
 
 private:
     enum State {
@@ -94,6 +99,7 @@ private:
     std::unique_ptr<InetAddress>    peer_;
     std::unique_ptr<Buffer>         inputBuffer_;
     std::unique_ptr<Buffer>         outputBuffer_;
+    std::any                        context_;
 
     MessageCallback                 messageCallback_;
     CloseCallback                   closeCallback_;

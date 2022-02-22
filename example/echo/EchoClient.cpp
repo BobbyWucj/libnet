@@ -77,4 +77,5 @@ int main()
     EchoClient client(&loop, peer);
     client.start();
     loop.loop();
+    return 0;
 }

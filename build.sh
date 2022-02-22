@@ -3,7 +3,7 @@
 set -x
 
 SOURCE_DIR=`pwd`
-BUILD_DIR=${BUILD_DIR:-../libnet-build}
+BUILD_DIR=${BUILD_DIR:-./libnet-build}
 BUILD_TYPE=${BUILD_TYPE:-Release}
 INSTALL_DIR=${INSTALL_DIR:-../${BUILD_TYPE}-install}
 BUILD_NO_EXAMPLES=${BUILD_NO_EXAMPLES:-0}

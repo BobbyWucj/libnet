@@ -27,21 +27,21 @@ void EPoller::poll(ChannelList& activeChannels, int timeout) {
     loop_->assertInLoopThread();
     int max_events = static_cast<int>(events_.size());
     int num_events = epoll_wait(epollfd_, events_.data(), max_events, timeout);
-    if (num_events > 0) {
+    if (num_events == -1){
+        if (errno != EINTR)
+            LOG_SYSERR(" EPoller::poll() ");
+    } else if (num_events > 0) {
         LOG_TRACE(" %d events happend ", num_events);
         for (int i = 0; i < num_events; ++i) {
             Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
             channel->setRevents(events_[i].events);
             activeChannels.push_back(channel);
         }
-        if(num_events >= max_events) {
+        if(num_events == max_events) {
             events_.resize(2 * events_.size());
         }
     } else if(num_events == 0) {
         LOG_TRACE(" nothing happended ");
-    } else {
-        if (errno != EINTR)
-            LOG_SYSERR(" EPoller::poll() ");
     }
 }
 

@@ -11,6 +11,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& local)
       numThreads_(1),
       started_(false),
       local_(local),
+      ipPort_(local.toIpPort()),
       threadInitCallback_(defaultThreadInitCallback),
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback)

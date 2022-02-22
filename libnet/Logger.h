@@ -18,6 +18,8 @@ void setLogLevel(int level);
 
 void setLogFd(int fd);
 
+void disableLog();
+
 /* private, do not use  */
 void log_base(const char *file,
               int line,

@@ -6,6 +6,7 @@
 #include <time.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <stdbool.h>
 
 #include "Logger.h"
 
@@ -16,6 +17,8 @@ int logLevel = LOG_LEVEL_DEBUG;
 #else
 int logLevel = LOG_LEVEL_INFO;
 #endif
+
+bool enableLog = true;
 
 static const char *log_level_str[] = {
         "[TRACE]",
@@ -34,8 +37,8 @@ void setLogLevel(int level)
 {
     if (level < LOG_LEVEL_TRACE)
         level = LOG_LEVEL_TRACE;
-    if (level > LOG_LEVEL_FATAL)
-        level = LOG_LEVEL_FATAL;
+    // if (level > LOG_LEVEL_FATAL)
+    //     level = LOG_LEVEL_FATAL;
 
     logLevel = level;
 }
@@ -47,12 +50,19 @@ void setLogFd(int fd)
     log_fd = fd;
 }
 
+void disableLog() {
+    enableLog = false;
+}
+
 void log_base(const char *file,
               int line,
               int level,
               int to_abort,
               const char *fmt, ...)
 {
+    if(!enableLog) {
+        return;
+    }
     char        data[MAXLINE];
     size_t      i = 0;
     va_list     ap;
@@ -80,6 +90,9 @@ void log_sys(const char *file,
              int to_abort,
              const char *fmt, ...)
 {
+    if(!enableLog) {
+        return;
+    }
     char        data[MAXLINE];
     size_t      i = 0;
     va_list     ap;

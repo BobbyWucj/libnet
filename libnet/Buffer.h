@@ -53,6 +53,10 @@ public:
 
     const char* peek() const { return begin() + readerIndex_; }
 
+    const char* findCRLF() const {
+        return findCRLF(peek());
+    }
+
     const char* findCRLF(const char* start) const {
         assert(peek() <= start);
         assert(start <= beginWrite());
