@@ -1,5 +1,5 @@
 #include "TcpServer.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 #include "TcpServerSingle.h"
 
@@ -16,7 +16,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& local)
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback)
 {
-    LOG_TRACE("Create TcpServer() %s", local.toIpPort().c_str());
+    LOG_TRACE << "Creating TcpServer() " << local.toIpPort();
 }
 
 TcpServer::~TcpServer()
@@ -29,7 +29,7 @@ TcpServer::~TcpServer()
     for (auto& thread : threads_) {
         thread->join();
     }
-    LOG_TRACE("~TcpServer()");
+    LOG_TRACE << "~TcpServer() " << local_.toIpPort();
 }
 
 void TcpServer::setNumThreads(size_t numThreads) {
@@ -51,8 +51,7 @@ void TcpServer::start() {
 }
 
 void TcpServer::startInLoop() {
-    LOG_INFO("TcpServer::start() %s with %lu eventLOop thread(s)", 
-            local_.toIpPort().c_str(), numThreads_);
+    LOG_INFO << "TcpServer::start() " << local_.toIpPort() << " with " << numThreads_ << " eventLoop thread(s)";
     
     baseServer_ = std::make_unique<TcpServerSingle>(baseLoop_, local_);
     baseServer_->setConnectionCallback(connectionCallback_);

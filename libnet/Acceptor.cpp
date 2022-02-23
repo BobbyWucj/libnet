@@ -8,7 +8,7 @@
 
 #include "Acceptor.h"
 #include "InetAddress.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
 using namespace libnet;
@@ -18,7 +18,7 @@ namespace {
 int createSocket() {
     int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
     if (sockfd == -1) {
-        LOG_SYSFATAL("Acceptor::createSocket()");
+        LOG_SYSFATAL << "Acceptor::createSocket()";
     }
     return sockfd;
 }
@@ -41,15 +41,15 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     int on = 1;
     int ret = ::setsockopt(listenFd_, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
     if (ret == -1) {
-        LOG_SYSFATAL("Acceptor::setsocketopt() SO_REUSEADDRESS");
+        LOG_SYSFATAL << "Acceptor::setsocketopt() SO_REUSEADDRESS";
     }
     ret = ::setsockopt(listenFd_, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
     if (ret == -1) {
-        LOG_SYSFATAL("Acceptor::setsocketopt() SO_REUSEPORT");
+        LOG_SYSFATAL << "Acceptor::setsocketopt() SO_REUSEPORT";
     }
     ret = ::bind(listenFd_, listenAddr_.getSockaddr(), listenAddr_.getSocklen());
     if (ret == -1) {
-        LOG_SYSFATAL("Acceptor::bind()");
+        LOG_SYSFATAL << "Acceptor::bind()";
     }
 }
 
@@ -71,7 +71,7 @@ void Acceptor::listen() {
     loop_->assertInLoopThread();
     int ret = ::listen(listenFd_, SOMAXCONN - 1);
     if (ret == -1) {
-        LOG_SYSFATAL("Acceptor::listen()");
+        LOG_SYSFATAL << "Acceptor::listen()";
     }
     listenChannel_->setReadCallback([this]{ this->handleRead(); });
     listenChannel_->enableReading();
@@ -96,7 +96,7 @@ void Acceptor::handleRead() {
                 emfileFd_ = ::open("dev/null", O_CLOEXEC | O_RDONLY);
                 continue;
             default:
-                LOG_FATAL("unexpected accept4() error");
+                LOG_FATAL << "unexpected accept4() error";
             }
         } else {
             break;

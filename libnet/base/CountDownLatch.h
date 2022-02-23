@@ -1,5 +1,5 @@
-#ifndef COUNTDOWNLATCH_H
-#define COUNTDOWNLATCH_H
+#ifndef LIBNET_BASE_COUNTDOWNLATCH_H
+#define LIBNET_BASE_COUNTDOWNLATCH_H
 
 #include <mutex>
 #include <condition_variable>
@@ -34,4 +34,4 @@ private:
 
 }; 
 
-#endif // COUNTDOWNLATCH_H
+#endif // LIBNET_BASE_COUNTDOWNLATCH_H

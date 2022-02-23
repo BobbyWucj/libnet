@@ -1,5 +1,5 @@
-#ifndef HTTPREQUEST_H
-#define HTTPREQUEST_H
+#ifndef EXAMPLE_WEBSERVER_HTTPREQUEST_H
+#define EXAMPLE_WEBSERVER_HTTPREQUEST_H
 
 #include "libnet/Timestamp.h"
 #include <optional>
@@ -142,4 +142,4 @@ private:
 
 } // namespace webserver
 
-#endif // HTTPREQUEST_H
+#endif // EXAMPLE_WEBSERVER_HTTPREQUEST_H

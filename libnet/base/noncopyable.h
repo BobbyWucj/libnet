@@ -1,5 +1,5 @@
-#ifndef NONCOPYABLE_H
-#define NONCOPYABLE_H
+#ifndef LIBNET_BASE_NONCOPYABLE_H
+#define LIBNET_BASE_NONCOPYABLE_H
 
 namespace libnet
 {
@@ -17,4 +17,4 @@ protected:
 
 } // namespace libnet
 
-#endif // NONCOPYABLE_H
+#endif // LIBNET_BASE_NONCOPYABLE_H

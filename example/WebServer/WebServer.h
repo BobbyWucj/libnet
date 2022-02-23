@@ -1,11 +1,11 @@
-#ifndef WEBSERVER_H
-#define WEBSERVER_H
+#ifndef EXAMPLE_WEBSERVER_WEBSERVER_H
+#define EXAMPLE_WEBSERVER_WEBSERVER_H
 
 #include "libnet/Buffer.h"
 #include "libnet/Callbacks.h"
 #include "libnet/EventLoop.h"
 #include "libnet/InetAddress.h"
-#include "libnet/noncopyable.h"
+#include "libnet/base/noncopyable.h"
 #include "libnet/TcpServer.h"
 #include <cstddef>
 #include <functional>
@@ -62,4 +62,4 @@ private:
 
 }
 
-#endif // WEBSERVER_H
+#endif // EXAMPLE_WEBSERVER_WEBSERVER_H

@@ -9,7 +9,7 @@
 #include <numeric>
 
 #include "EPoller.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
 using namespace libnet;
@@ -39,14 +39,15 @@ EventLoop::EventLoop()
       wakeupFd_(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
       wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
 {
-    LOG_TRACE(" EventLoop created %p in thread  %d ", this, tid_);
+    // FIXME : LOG tid
+    LOG_INFO << "EventLoop createt "  << this << "in thread ";
     if(wakeupFd_ <= 0) {
-        LOG_FATAL("EventLoop::eventfd() fail to create");
+        LOG_FATAL << "EventLoop::eventfd() fail to create";
     }
     wakeupChannel_->setReadCallback([this]{handleRead();});
     wakeupChannel_->enableReading();
     if(t_loopInThisThread) {
-        LOG_FATAL( "Another EventLoop %p exits in this thread", t_loopInThisThread, tid_);
+        LOG_FATAL << "Another EventLoop " << t_loopInThisThread << " exits in this thread";
     } else {
         t_loopInThisThread = this;
     }
@@ -63,7 +64,7 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread() {
 
 void EventLoop::loop() {
     assertInLoopThread();
-    LOG_TRACE("EventLoop %p polling", this);
+    LOG_TRACE << "EventLoop " << this << " polling";
     quit_ = false;
     while(!quit_) {
         activeChannels_.clear();
@@ -80,7 +81,7 @@ void EventLoop::loop() {
         }
         doPendingTasks();
     }
-    LOG_TRACE("EventLoop %p stop looping", this);
+    LOG_TRACE << "EventLoop " << this<< " stop looping";
 }
 
 void EventLoop::quit() {
@@ -93,13 +94,13 @@ void EventLoop::updateChannel(Channel* channel) {
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
     poller_->updateChannel(channel);
-    LOG_TRACE("EventLoop %p update Channel %p", this, channel);
+    LOG_TRACE << "EventLoop " << this << " update Channel " << channel;
 }
 
 void EventLoop::removeChannel(Channel* channel) {
     assertInLoopThread();
     channel->disableAll();
-    LOG_TRACE("EventLoop %p remove Channel %p", this, channel);
+    LOG_TRACE << "EventLoop " << this << " remove Channel " << channel;
 }
 
 Timer* EventLoop::runAt(Timestamp when, TimerCallback callback) {
@@ -172,14 +173,14 @@ void EventLoop::wakeup() {
     uint64_t one = 1;
     ssize_t n = ::write(wakeupFd_, &one, sizeof(one));
     if (n != sizeof(one)) 
-        LOG_SYSERR("EventLoop::wakeup() should ::write %lu bytes", sizeof(one));
+        LOG_SYSERR << "EventLoop::wakeup() should ::write " << sizeof(one) << " bytes";
 }
 
 void EventLoop::handleRead() {
     uint64_t one = 1;
     ssize_t n = ::read(wakeupFd_, &one, sizeof(one));
     if(n != sizeof(one))
-        LOG_SYSERR("EventLoop::handleRead() should ::read %lu bytes", sizeof(one));
+        LOG_SYSERR << "EventLoop::wakeup() should ::read " << sizeof(one) << " bytes";
 }
 
 bool EventLoop::isInLoopThread() const {

@@ -2,7 +2,7 @@
 #include "HttpResponse.h"
 #include "HttpParser.h"
 
-#include "libnet/Logger.h"
+#include "libnet/base/Logger.h"
 #include "libnet/Buffer.h"
 #include "libnet/TcpConnection.h"
 
@@ -39,14 +39,11 @@ WebServer::WebServer(EventLoop* loop,
 }
 
 void WebServer::start() {
-    LOG_TRACE("WebServer starts listening on %s", server_.ipPort().c_str());
+    LOG_WARN << "WebServer starts listening on " << server_.ipPort();
     server_.start();
 }
 
 void WebServer::onConnection(const TcpConnectionPtr& conn) {
-    LOG_INFO("connection %s is [%s]",
-             conn->name().c_str(),
-             conn->connected() ? "up":"down");
     if (conn->connected()) {
         conn->setContext(std::make_any<HttpParser>());
     }

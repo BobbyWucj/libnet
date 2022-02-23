@@ -4,7 +4,7 @@
 #include <strings.h>
 #include <sys/socket.h>
 
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "InetAddress.h"
 
 using namespace libnet;
@@ -24,7 +24,7 @@ InetAddress::InetAddress(const std::string& ip, uint16_t port)
     address_.sin_family = AF_INET;
     int ret = ::inet_pton(AF_INET, ip.c_str(), &address_.sin_addr.s_addr);
     if (ret != 1) {
-        LOG_SYSFATAL("InetAddress::inet_pton()");
+        LOG_SYSFATAL << "InetAddress::inet_pton()";
     }
     address_.sin_port = htons(port);
 }
@@ -34,7 +34,7 @@ std::string InetAddress::toIp() const {
     const char* ret = inet_ntop(AF_INET, &address_.sin_addr, buf, sizeof(buf));
     if (ret == nullptr) {
         buf[0] = '\0';
-        LOG_SYSERR("InetAddress::inet_ntop()");
+        LOG_SYSERR << "InetAddress::inet_ntop()";
     }
     return std::string(buf);
 }

@@ -2,7 +2,7 @@
 #include "Callbacks.h"
 #include "Connector.h"
 #include "InetAddress.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "TcpConnection.h"
 #include <cassert>
 #include <memory>
@@ -46,7 +46,7 @@ void libnet::TcpClient::retry() {
         return;
     }
 
-    LOG_WARN("TcpClient::retry() reconnect %s...", peer_.toIpPort().c_str());
+    LOG_WARN << "TcpClient::retry() reconnecting " << peer_.toIpPort() << "...";
 
     connector_ = std::make_unique<Connector>(loop_, peer_);
     connector_->setNewConnectionCallback([this](auto connfd, auto local, auto peer)

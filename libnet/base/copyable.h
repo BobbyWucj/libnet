@@ -1,5 +1,5 @@
-#ifndef COPYABLE_H
-#define COPYABLE_H
+#ifndef LIBNET_BASE_COPYABLE_H
+#define LIBNET_BASE_COPYABLE_H
 
 namespace libnet 
 {
@@ -16,4 +16,4 @@ protected:
 
 } // namespace libnet
 
-#endif // COPYABLE_H
+#endif // LIBNET_BASE_COPYABLE_H

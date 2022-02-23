@@ -1,6 +1,6 @@
 #include "Connector.h"
 #include "InetAddress.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
 #include <cassert>
@@ -15,7 +15,7 @@ namespace
 int creatSocket() {
     int ret = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
     if (ret == -1) {
-        LOG_SYSFATAL("Connector::socket()");
+        LOG_SYSFATAL << "Connector::socket()";
     }
     return ret;
 }
@@ -71,7 +71,7 @@ void Connector::handleWrite() {
         errno = err;
     }
     if (errno != 0) {
-        LOG_SYSERR("Connector::connect()");
+        LOG_SYSERR << "Connector::connect()";
         if (errorCallback_) {
             errorCallback_();
         }
@@ -80,7 +80,7 @@ void Connector::handleWrite() {
         len = sizeof(addr);
         ret = ::getsockname(cfd_, reinterpret_cast<sockaddr*>(&addr), &len);
         if (ret == -1) {
-            LOG_SYSERR("Connector::getsockname()");
+            LOG_SYSERR << "Connector::getsockname()";
         }
         InetAddress local;
         local.setAddress(addr);

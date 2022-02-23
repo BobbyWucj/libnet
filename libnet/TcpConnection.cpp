@@ -1,5 +1,5 @@
 #include "TcpConnection.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
 #include <cassert>
@@ -11,23 +11,21 @@ using namespace libnet;
 namespace libnet {
 
 void defaultThreadInitCallback(size_t index) {
-    LOG_TRACE("EventLoop thread #%lu started", index);
+    LOG_TRACE << "EventLoop thread " << index << " started";
 }
 
 void defaultConnectionCallback(const TcpConnectionPtr &conn) {
-    LOG_INFO("connection %s -> %s %s",
-        conn->peer().toIpPort().c_str(),
-        conn->local().toIpPort().c_str(),
-        conn->connected() ? "up" : "down");
+    LOG_TRACE << conn->local().toIpPort() << " -> "
+              << conn->peer().toIpPort() << " is "
+              << (conn->connected() ? "UP" : "DOWN");
 }
 
 void defaultMessageCallback(const TcpConnectionPtr& conn, Buffer& buffer)
 {
-  LOG_TRACE("connection %s -> %s recv %lu bytes",
-        conn->peer().toIpPort().c_str(),
-        conn->local().toIpPort().c_str(),
-        buffer.readableBytes());
-  buffer.retrieveAll();
+    LOG_TRACE << conn->local().toIpPort() << " -> "
+              << conn->peer().toIpPort() << " recv "
+              << buffer.readableBytes() << " bytes";
+    buffer.retrieveAll();
 }
 
 } // namespace libnet
@@ -51,7 +49,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
     channel_->setCloseCallback([this]{ this->handleClose(); });
     channel_->setErrorCallback([this]{ this->handleError(); });
 
-    LOG_TRACE("TcpConnection() %s fd=%d", name().c_str(), cfd);
+    LOG_TRACE << "TcpConnection() " << name() << " fd=" << cfd;
 }
 
 TcpConnection::~TcpConnection()
@@ -59,7 +57,7 @@ TcpConnection::~TcpConnection()
     assert(state_ == kDisconnected);
     ::close(cfd_);
 
-    LOG_TRACE("~TcpConnection() %s fd=%d", name().c_str(), cfd_);
+    LOG_TRACE << "~TcpConnection() " << name() << " fd=" << cfd_;
 }
 
 void TcpConnection::connectionEstablished() {
@@ -76,7 +74,7 @@ void TcpConnection::send(const std::string& data) {
 // thread-safe send
 void TcpConnection::send(const char* data, size_t len) {
     if (state_ != kConnected) {
-        LOG_WARN("TcpConnection::send() not connected, give up send ");
+        LOG_WARN << "TcpConnection::send() not connected, give up send ";
         return;
     }
     if (loop_->isInLoopThread()) {
@@ -92,7 +90,7 @@ void TcpConnection::send(const char* data, size_t len) {
 
 void TcpConnection::send(Buffer& buffer) {
     if (state_ != kConnected) {
-        LOG_WARN("TcpConnection::send() not connected, give up send ");
+        LOG_WARN << "TcpConnection::send() not connected, give up send ";
         return;
     }
     if (loop_->isInLoopThread()) {
@@ -113,7 +111,7 @@ void TcpConnection::sendInLoop(const std::string& message) {
 void TcpConnection::sendInLoop(const char* data, size_t len) {
     loop_->assertInLoopThread();
     if (state_ == kDisconnected) {
-        LOG_WARN("TcpConnection::sendInLoop() disconnected, give up send");
+        LOG_WARN << "TcpConnection::sendInLoop() disconnected, give up send";
         return;
     }
     ssize_t n = 0;
@@ -125,7 +123,7 @@ void TcpConnection::sendInLoop(const char* data, size_t len) {
         n = ::write(cfd_, data, len);
         if (n == -1) {
             if (errno != EWOULDBLOCK || errno != EINTR || errno != EAGAIN) {
-                LOG_SYSERR("TcpConnection::write()");
+                LOG_SYSERR << "TcpConnection::write()";
                 if (errno == EPIPE || errno == ECONNRESET) {
                     faultError = true;
                 }
@@ -182,7 +180,7 @@ void TcpConnection::shutdownInLoop() {
 
     if (state_ != kDisconnected && !channel_->isWriting()) {
         if (::shutdown(cfd_, SHUT_WR) == -1) {
-            LOG_SYSERR("TcpConnection::shutdown()");
+            LOG_SYSERR << "TcpConnection::shutdown()";
         }
     }
 }
@@ -225,7 +223,7 @@ void TcpConnection::handleRead() {
     ssize_t n = inputBuffer_->readFd(cfd_, &savedErrno);
     if (n == -1) {
         errno = savedErrno;
-        LOG_SYSERR("TcpConnection::read()");
+        LOG_SYSERR << "TcpConnection::read()";
         handleError();
     } else if (n == 0) {
         handleClose();
@@ -236,15 +234,15 @@ void TcpConnection::handleRead() {
 
 void TcpConnection::handleWrite() {
     if (state_ == kDisconnected) {
-        LOG_WARN("TcpConnection::handleWrite() disconnected,"
-                  "give up writing %lu bytes", outputBuffer_->readableBytes());
+        LOG_WARN << "TcpConnection::handleWrite() disconnected, " 
+                 << "give up writing " << outputBuffer_->readableBytes() << " bytes";
         return;
     }
     assert(outputBuffer_->readableBytes() > 0);
     assert(channel_->isWriting());
     ssize_t n = ::write(cfd_, outputBuffer_->peek(), outputBuffer_->readableBytes());
     if (n == -1) {
-        LOG_SYSERR("TcpConnection::write()");
+        LOG_SYSERR << "TcpConnection::write()";
     } else {
         outputBuffer_->retrieve(static_cast<size_t>(n));
         if (outputBuffer_->readableBytes() == 0) {
@@ -277,6 +275,6 @@ void TcpConnection::handleError() {
     if (ret != -1) {
         errno = err;
     }
-    LOG_SYSERR("TcpConnection::handleError()");
+    LOG_SYSERR << "TcpConnection::handleError()";
 }
 

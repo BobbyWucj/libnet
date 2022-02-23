@@ -2,30 +2,13 @@
 #include <thread>
 
 #include "libnet/EventLoop.h"
-#include "libnet/TcpClient.h"
-#include "libnet/TcpConnection.h"
-#include "libnet/Logger.h"
+#include "libnet/InetAddress.h"
+#include "libnet/base/Logger.h"
+#include "EchoClient.h"
 
 using namespace libnet;
 
-class EchoClient : noncopyable
-{
-public:
-    EchoClient(EventLoop* loop, const InetAddress& peer);
-
-    void start();
-
-    void onConnection(const TcpConnectionPtr& conn);
-    void onMessage(const TcpConnectionPtr& conn, Buffer& buffer);
-    void getLineAndSend();
-
-private:
-    TcpConnectionPtr conn_;
-    EventLoop* loop_;
-    TcpClient client_;
-};
-
-inline EchoClient::EchoClient(EventLoop* loop, const InetAddress& peer)
+EchoClient::EchoClient(EventLoop* loop, const InetAddress& peer)
     : loop_(loop),
       client_(loop, peer)
 {
@@ -34,15 +17,11 @@ inline EchoClient::EchoClient(EventLoop* loop, const InetAddress& peer)
     ));
 }
 
-inline void EchoClient::start() {
+void EchoClient::start() {
     client_.start();
 }
 
-inline void EchoClient::onConnection(const TcpConnectionPtr& conn) {
-    LOG_INFO("connection %s is [%s]",
-        conn->name().c_str(),
-        conn->connected() ? "up" : "down");
-
+void EchoClient::onConnection(const TcpConnectionPtr& conn) {
     if (conn->connected()) {
         conn->setMessageCallback(std::bind(
             &EchoClient::onMessage, this, _1, _2
@@ -57,11 +36,11 @@ inline void EchoClient::onConnection(const TcpConnectionPtr& conn) {
     }
 }
 
-inline void EchoClient::onMessage(const TcpConnectionPtr& conn, Buffer& buffer) {
+void EchoClient::onMessage(const TcpConnectionPtr& conn, Buffer& buffer) {
     std::cout << buffer.retrieveAllAsString() << std::endl;
 }
 
-inline void EchoClient::getLineAndSend() {
+void EchoClient::getLineAndSend() {
     std::string line;
     while (std::getline(std::cin, line)) {
         conn_->send(line);
@@ -71,7 +50,7 @@ inline void EchoClient::getLineAndSend() {
 
 int main()
 {
-    setLogLevel(LOG_LEVEL_WARN);
+    Logger::setLogLevel(Logger::ERROR);
     EventLoop loop;
     InetAddress peer("192.168.xxx.xxx", 9877);
     EchoClient client(&loop, peer);

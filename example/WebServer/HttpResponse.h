@@ -1,8 +1,8 @@
-#ifndef HTTPRESPONSE_H
-#define HTTPRESPONSE_H
+#ifndef EXAMPLE_WEBSERVER_HTTPRESPONSE_H
+#define EXAMPLE_WEBSERVER_HTTPRESPONSE_H
 
 #include "libnet/Buffer.h"
-#include "libnet/copyable.h"
+#include "libnet/base/copyable.h"
 #include <map>
 #include <string>
 
@@ -70,4 +70,4 @@ private:
 
 }
 
-#endif // HTTPRESPONSE_H
+#endif // EXAMPLE_WEBSERVER_HTTPRESPONSE_H

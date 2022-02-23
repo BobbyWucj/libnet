@@ -1,7 +1,7 @@
 #include <cassert>
 #include "EventLoop.h"
 #include "EventLoopThread.h"
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 
 using namespace libnet;
 
@@ -26,7 +26,7 @@ EventLoop* EventLoopThread::startLoop() {
 
     assert(loop_ == nullptr);
     thread_ = std::thread([this]{ runInThread(); });
-    LOG_TRACE("EventLoopThread create 1 thread ");
+    LOG_TRACE << "EventLoopThread create 1 thread";
 
     latch_.wait();
     assert(loop_ != nullptr);

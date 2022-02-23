@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <ratio> // for std::nano::den
 
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 #include "TimerQueue.h"
 
@@ -16,7 +16,7 @@ namespace
 int timerfdCreate() {
     int fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
     if(fd == -1)
-        LOG_SYSFATAL("timerfd_create()");
+        LOG_SYSFATAL << "timerfd_create()";
     return fd;
 }
 
@@ -25,7 +25,7 @@ void timerfdRead(int fd)
   uint64_t val;
   ssize_t n = ::read(fd, &val, sizeof(val));
   if (n != sizeof(val))
-    LOG_ERROR("timerfdRead get %ld, not %lu", n, sizeof(val));
+    LOG_ERROR << "timerfdRead get" << n << ", not " << sizeof(val);
 }
 
 struct timespec durationFromNow(Timestamp when) {
@@ -46,7 +46,7 @@ void timerfdSet(int fd, Timestamp when) {
 
     int ret = timerfd_settime(fd, 0, &newtime, &oldtime);
     if(ret == -1) 
-        LOG_SYSERR("timerfd_settime()");
+        LOG_SYSERR << "timerfd_settime()";
 }
 
 } // anonymous namespace

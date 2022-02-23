@@ -2,7 +2,7 @@
 #include <sys/epoll.h>
 #include <cassert>
 
-#include "Logger.h"
+#include "libnet/base/Logger.h"
 #include "EventLoop.h"
 #include "EPoller.h"
 
@@ -14,7 +14,7 @@ EPoller::EPoller(EventLoop* loop)
       epollfd_(::epoll_create1(EPOLL_CLOEXEC))
 {
     if(epollfd_ == -1) {
-        LOG_SYSFATAL("Epoller::epoll_create1()");
+        LOG_SYSFATAL << "Epoller::epoll_create1()";
     }
 }
 
@@ -29,9 +29,9 @@ void EPoller::poll(ChannelList& activeChannels, int timeout) {
     int num_events = epoll_wait(epollfd_, events_.data(), max_events, timeout);
     if (num_events == -1){
         if (errno != EINTR)
-            LOG_SYSERR(" EPoller::poll() ");
+            LOG_SYSERR << "EPoller::poll()";
     } else if (num_events > 0) {
-        LOG_TRACE(" %d events happend ", num_events);
+        LOG_TRACE << num_events << " events happend";
         for (int i = 0; i < num_events; ++i) {
             Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
             channel->setRevents(events_[i].events);
@@ -41,7 +41,7 @@ void EPoller::poll(ChannelList& activeChannels, int timeout) {
             events_.resize(2 * events_.size());
         }
     } else if(num_events == 0) {
-        LOG_TRACE(" nothing happended ");
+        LOG_TRACE << "nothing happended";
     }
 }
 
@@ -68,5 +68,5 @@ void EPoller::updateChannel(int op, Channel* channel) {
     event.data.ptr = channel;
     int ret = ::epoll_ctl(epollfd_, op, channel->fd(), &event);
     if(ret == -1)
-        LOG_SYSERR("EPoller::updateChannel(op, channel)");
+        LOG_SYSERR << "EPoller::updateChannel(op, channel)";
 }

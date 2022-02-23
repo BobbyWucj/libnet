@@ -4,10 +4,7 @@
 #include "HttpResponse.h"
 #include "libnet/EventLoop.h"
 #include "libnet/InetAddress.h"
-#include "libnet/Timestamp.h"
-#include "libnet/Logger.h"
-#include <bits/types/time_t.h>
-#include <ctime>
+#include "libnet/base/Logger.h"
 #include <string>
 
 using namespace webserver;
@@ -17,10 +14,10 @@ extern char favicon[555];
 
 void onHttp(const HttpRequest& request, HttpResponse* response)
 {
-    LOG_INFO("Headers %s %s ", request.methodString(), request.path().c_str());
+    LOG_INFO << "Headers " << request.methodString() << " " << request.path();
     const std::map<string, string>& headers = request.headers();
     for (const auto& header : headers) {
-        LOG_INFO("%s : %s", header.first.c_str(), header.second.c_str());
+        LOG_INFO << header.first << ": " << header.second;
     }
 
     if (request.path() == "/") {
@@ -53,12 +50,10 @@ void onHttp(const HttpRequest& request, HttpResponse* response)
 
 int main(int argc, char* argv[])
 {
-    // setLogLevel(LOG_LEVEL_INFO);
-    disableLog();
+    Logger::setLogLevel(Logger::ERROR);
     size_t numThreads = 1; // need to be larger than 0
     if (argc > 1) {
         numThreads = static_cast<size_t>(atoi(argv[1]));
-        // setLogLevel(LOG_LEVEL_WARN);
     }
     EventLoop loop;
     WebServer server(&loop, InetAddress(8090));
