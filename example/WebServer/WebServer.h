@@ -7,9 +7,12 @@
 #include "libnet/InetAddress.h"
 #include "libnet/base/noncopyable.h"
 #include "libnet/TcpServer.h"
+#include "HttpResponse.h"
 #include <cstddef>
 #include <functional>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace libnet 
 {
@@ -17,6 +20,7 @@ namespace libnet
 class Buffer;
 class EventLoop;
 class InetAddress;
+class Timer;
 
 }
 
@@ -24,7 +28,6 @@ namespace webserver
 {
 
 class HttpRequest;
-class HttpResponse;
 
 using libnet::TcpConnectionPtr;
 using libnet::Buffer;
@@ -36,9 +39,9 @@ class WebServer : libnet::noncopyable
 public:
     using HttpCallback = std::function<void(const HttpRequest&, HttpResponse*)>;
 
-    WebServer(EventLoop* loop, const InetAddress& listenAddr);
+    WebServer(EventLoop* loop, const InetAddress& listenAddr, const std::string& root = "./example/WebServer/root");
 
-    EventLoop* getLoop() const {
+    EventLoop* loop() const {
         return server_.getLoop();
     }
 
@@ -51,15 +54,21 @@ public:
 
     void start();
 
+    std::string root() const { return root_; }
+    void setRoot(const std::string &root) { root_ = root; }
+
 private:
     void onConnection(const TcpConnectionPtr& conn);
     void onMessage(const TcpConnectionPtr& conn, Buffer& buffer);
     void onRequest(const TcpConnectionPtr& conn, const HttpRequest& request);
+    void onHttp(const HttpRequest& request, HttpResponse* response);
+    void onError(HttpResponse* response, const HttpResponse::HttpStatusCode statusCode);
 
     libnet::TcpServer server_;
     HttpCallback httpCallback_;
+    std::string root_; // WebServer root directory
 };
 
-}
+} // namespace webserver
 
 #endif // EXAMPLE_WEBSERVER_WEBSERVER_H

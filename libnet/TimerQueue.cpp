@@ -1,9 +1,12 @@
 
+#include <cassert>
 #include <sys/timerfd.h>
 #include <strings.h>
 #include <unistd.h>
 #include <ratio> // for std::nano::den
+#include <utility>
 
+#include "libnet/Timestamp.h"
 #include "libnet/base/Logger.h"
 #include "EventLoop.h"
 #include "TimerQueue.h"
@@ -38,6 +41,7 @@ struct timespec durationFromNow(Timestamp when) {
     return ret;
 }
 
+// set timerfd expire-time
 void timerfdSet(int fd, Timestamp when) {
     struct itimerspec oldtime, newtime;
     bzero(&oldtime, sizeof(itimerspec));
@@ -63,17 +67,22 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
-    for (auto& entry : timers_)
-        delete entry.second;
+    while (!timers_.empty()) {
+        auto timer = timers_.top();
+        timers_.pop();
+        if (timer) {
+            delete timer;
+        }
+    }
     ::close(timerfd_);
 }
 
-Timer* TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval) {
-    Timer* timer = new Timer(std::move(cb), when, interval);
+Timer* TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval, bool repeat) {
+    Timer* timer = new Timer(std::move(cb), when, interval, repeat);
     loop_->runInLoop([=] {
-                        auto ret = timers_.insert({when, timer});
-                        assert(ret.second);
-                        if(timers_.begin() == ret.first) {
+                        timers_.push(timer);
+                        // update timerfd expire-time
+                        if(timers_.top() == timer) {
                             timerfdSet(timerfd_, when);
                         }
                     });
@@ -81,11 +90,10 @@ Timer* TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interv
 }
 
 void TimerQueue::cancelTimer(Timer* timer) {
-    loop_->runInLoop([timer, this]
-                     {
+    loop_->runInLoop([timer] {
                          timer->cancel();
-                         timers_.erase({timer->when(), timer});
-                         delete timer;
+                         // delay deletion
+                         timer->setTimerCallback(nullptr);
                      });
 }
 
@@ -95,35 +103,31 @@ void TimerQueue::handleRead() {
     
     Timestamp now(clock::now());
 
-    for(auto& entry : getExpired(now)) {
-        Timer* timer = entry.second;
-        assert(timer->expired(now));
+    while (!timers_.empty()) {
+        Timer* timer = timers_.top();
+        if (!timer->expired(now)) {
+            break;
+        }
 
         if (!timer->canceled()) {
             timer->run();
         }
+
+        timers_.pop();
+
         if (!timer->canceled() && timer->repeat()) {
             timer->restart();
-            entry.first = timer->when();
-            timers_.insert(entry);
+            timers_.emplace(std::move(timer));
         } else {
-            delete timer;
+            delete timer; // true delete
         }
     }
+    // update timerfd expire-time
     if (!timers_.empty())
-        timerfdSet(timerfd_, timers_.begin()->first);
+        timerfdSet(timerfd_, timers_.top()->when());
 }
 
-std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now) {
-    // 1ns is the precision
-    Entry entry(now + 1ns, nullptr);
-    // find the first timer which not expired
-    auto end = timers_.lower_bound(entry);
-    assert(end == timers_.end() || now < end->first);
-    std::vector<Entry> expired(timers_.begin(), end);
-    timers_.erase(timers_.begin(), end);
-
-    return expired;
+void TimerQueue::updateTimer(Timer* timer, Timestamp when) {
+    assert(when > clock::now());
+    timer->setWhen(when);
 }
-
-

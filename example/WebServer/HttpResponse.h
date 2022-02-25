@@ -5,6 +5,7 @@
 #include "libnet/base/copyable.h"
 #include <map>
 #include <string>
+#include <unordered_map>
 
 
 namespace libnet {
@@ -29,8 +30,13 @@ public:
         k200Ok = 200,
         k301MovedPermanently = 301,
         k400BadRequest = 400,
+        k403Forbidden = 403,
         k404NotFound = 404,
+        k501NotImplemented = 501
     };
+
+    static std::unordered_map<int, std::string> statusTitleMap;
+    static std::unordered_map<int, std::string> statusMessageMap;
 
     explicit HttpResponse(bool closeConnection)
         : statusCode_(kUnknown),
@@ -51,6 +57,10 @@ public:
 
     void addHeader(const string& field, const string& value) {
         headers_[field] = value;
+    }
+
+    void eraseHeaders() {
+        headers_.clear();
     }
 
     void setContentType(const string& contentType) { 

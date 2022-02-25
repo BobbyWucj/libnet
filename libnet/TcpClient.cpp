@@ -62,7 +62,7 @@ void TcpClient::newConnection(int connfd, const InetAddress& local, const InetAd
     retryTimer_ = nullptr;
     connected_ = true;
 
-    auto conn = std::make_shared<TcpConnection>(loop_, connfd, local, peer);
+    auto conn = std::make_shared<TcpConnection>(loop_, connfd, local, peer, 10s);
     connection_ = conn;
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);

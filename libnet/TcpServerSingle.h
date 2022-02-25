@@ -3,6 +3,7 @@
 
 #include "Acceptor.h"
 #include "Callbacks.h"
+#include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
 
 #include <memory>
@@ -16,7 +17,7 @@ class EventLoop;
 class TcpServerSingle : noncopyable 
 {
 public:
-    TcpServerSingle(EventLoop* loop, const InetAddress& local);
+    TcpServerSingle(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat);
 
     void start();
 
@@ -41,6 +42,7 @@ private:
     ConnectionCallback          connectionCallback_;
     MessageCallback             messageCallback_;
     WriteCompleteCallback       writeCompleteCallback_;
+    Nanoseconds                 heartbeat_;
 };
 
 } // namespace libnet

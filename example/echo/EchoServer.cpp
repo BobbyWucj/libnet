@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <functional>
 
+#include "libnet/Callbacks.h"
 #include "libnet/EventLoop.h"
 #include "libnet/base/Logger.h"
 #include "EchoServer.h"

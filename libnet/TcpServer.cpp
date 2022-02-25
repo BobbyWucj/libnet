@@ -6,12 +6,13 @@
 
 using namespace libnet;
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& local)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat)
     : baseLoop_(loop),
       numThreads_(1),
       started_(false),
       local_(local),
       ipPort_(local.toIpPort()),
+      heartbeat_(heartbeat),
       threadInitCallback_(defaultThreadInitCallback),
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback)
@@ -53,7 +54,7 @@ void TcpServer::start() {
 void TcpServer::startInLoop() {
     LOG_INFO << "TcpServer::start() " << local_.toIpPort() << " with " << numThreads_ << " eventLoop thread(s)";
     
-    baseServer_ = std::make_unique<TcpServerSingle>(baseLoop_, local_);
+    baseServer_ = std::make_unique<TcpServerSingle>(baseLoop_, local_, heartbeat_);
     baseServer_->setConnectionCallback(connectionCallback_);
     baseServer_->setMessageCallback(messageCallback_);
     baseServer_->setWriteCompleteCallback(writeCompleteCallback_);
@@ -80,7 +81,7 @@ void TcpServer::startInLoop() {
 void TcpServer::runInThread(const size_t index) {
     EventLoop loop;
     // 栈上对象
-    TcpServerSingle server(&loop, local_);
+    TcpServerSingle server(&loop, local_, heartbeat_);
 
     server.setConnectionCallback(connectionCallback_);
     server.setMessageCallback(messageCallback_);

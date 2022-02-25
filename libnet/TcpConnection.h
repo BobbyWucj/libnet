@@ -5,6 +5,7 @@
 #include "Callbacks.h"
 #include "Channel.h"
 #include "EventLoop.h"
+#include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
 #include "InetAddress.h"
 #include "Buffer.h"
@@ -26,7 +27,8 @@ public:
     TcpConnection(EventLoop* loop,
                   int cfd,
                   const InetAddress& local,
-                  const InetAddress& peer);
+                  const InetAddress& peer,
+                  const Nanoseconds heartbeat);
     ~TcpConnection();
 
     void connectionEstablished();
@@ -71,6 +73,10 @@ public:
     std::any* getMutableContext() { return &context_; }
     void setContext(const std::any& context) { context_ = context; }
 
+    Timer* timer() const { return timer_; }
+    void setTimer(Timer* timer) { timer_ = timer; }
+
+    void onInactiveConn();
 
 private:
     enum State {
@@ -100,6 +106,8 @@ private:
     std::unique_ptr<Buffer>         inputBuffer_;
     std::unique_ptr<Buffer>         outputBuffer_;
     std::any                        context_;
+    Timer*                          timer_;
+    Nanoseconds                     heartbeat_;
 
     MessageCallback                 messageCallback_;
     CloseCallback                   closeCallback_;

@@ -16,6 +16,7 @@ using std::placeholders::_5;
 class Buffer;
 class TcpConnection;
 class InetAddress;
+// class Timer;
 
 using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
 

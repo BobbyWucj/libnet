@@ -1,7 +1,9 @@
 #ifndef LIBNET_EVENTLOOP_H
 #define LIBNET_EVENTLOOP_H
 
+#include <any>
 #include <atomic>
+#include <cstddef>
 #include <thread>
 #include <mutex>
 #include <vector>
@@ -57,11 +59,6 @@ private:
 
     void doPendingTasks();
     void handleRead();
-    int getNextTimeout() {
-        if (!pendingTasks_.empty()) 
-            return 0;
-        return static_cast<int>(timerQueue_.nextTimeout());
-    }
 
     const std::thread::id       tid_;
     std::atomic<bool>           quit_;

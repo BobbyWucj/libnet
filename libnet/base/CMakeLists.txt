@@ -21,4 +21,4 @@ add_library(logger ${LOGGER_SRC})
 set_target_properties(logger PROPERTIES OUTPUT_NAME "logger")
 
 install(TARGETS logger DESTINATION lib)
-install(FILES ${BASE_HEADERS} DESTINATION include)
+install(FILES ${BASE_HEADERS} DESTINATION include/logger)

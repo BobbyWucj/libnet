@@ -40,21 +40,24 @@ bool HttpParser::parseRequest(Buffer& buf) {
                 hasMore = false;
             }
         } else if (state_ == kExpectBody) {
-            // TODO:
+            // 不解析 Body，只管读入
         }
     }
     return ok;
 }
 
+// Method -> Path & (Query) -> Version
 bool HttpParser::processRequestLine(const char* begin, const char* end) {
     bool succeed = false;
     const char* start = begin;
     const char* space = std::find(start, end, ' ');
+    // Method
     if (space != end && request_.setMethod(start, space)) {
         start = space+1;
         space = std::find(start, end, ' ');
 
         if (space != end) {
+            // Path & Query
             const char* question = std::find(start, space, '?');
             if (question != space) {
                 request_.setPath(start, question);
@@ -62,7 +65,7 @@ bool HttpParser::processRequestLine(const char* begin, const char* end) {
             } else {
                 request_.setPath(start, space);
             }
-
+            // Version
             start = space+1;
             succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
             if (succeed) {

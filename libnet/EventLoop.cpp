@@ -7,8 +7,10 @@
 #include <syscall.h>
 #include <signal.h>
 #include <numeric>
+#include <utility>
 
 #include "EPoller.h"
+#include "libnet/Timestamp.h"
 #include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
@@ -69,12 +71,7 @@ void EventLoop::loop() {
     while(!quit_) {
         activeChannels_.clear();
 
-        auto nextTimeout = getNextTimeout();
-        if (nextTimeout) {
-            poller_->poll(activeChannels_, nextTimeout);
-        } else {
-            poller_->poll(activeChannels_);
-        }
+        poller_->poll(activeChannels_);
         
         for(auto &channel : activeChannels_) {
             channel->handleEvents();
@@ -90,6 +87,7 @@ void EventLoop::quit() {
     if(!isInLoopThread())
         wakeup();
 }
+
 void EventLoop::updateChannel(Channel* channel) {
     assert(channel->ownerLoop() == this);
     assertInLoopThread();
@@ -104,17 +102,21 @@ void EventLoop::removeChannel(Channel* channel) {
 }
 
 Timer* EventLoop::runAt(Timestamp when, TimerCallback callback) {
-    return timerQueue_.addTimer(std::move(callback), when, Milliseconds::zero());
+    return timerQueue_.addTimer(std::move(callback), when);
 }
 
 Timer* EventLoop::runAfter(Nanoseconds interval, TimerCallback callback) {
-    return runAt(clock::now() + interval, std::move(callback));
+    return timerQueue_.addTimer(std::move(callback), 
+                                clock::now() + interval, 
+                                interval, 
+                                false);
 }
 
 Timer* EventLoop::runEvery(Nanoseconds interval, TimerCallback callback) {
     return timerQueue_.addTimer(std::move(callback),
                                 clock::now() + interval,
-                                interval);
+                                interval,
+                                true);
 }
 
 void EventLoop::cancelTimer(Timer* timer) {

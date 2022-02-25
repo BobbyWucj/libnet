@@ -3,6 +3,7 @@
 
 #include "Callbacks.h"
 #include "InetAddress.h"
+#include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
 
 #include <atomic>
@@ -22,7 +23,7 @@ class EventLoopThread;
 class TcpServer : noncopyable
 {
 public:
-    TcpServer(EventLoop* loop, const InetAddress& local);
+    TcpServer(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat = 5s);
     ~TcpServer();
 
     void setNumThreads(size_t numThreads);
@@ -57,6 +58,7 @@ private:
     const std::string               ipPort_;
     mutable std::mutex              mutex_;
     mutable std::condition_variable cond_;
+    Nanoseconds                     heartbeat_;
 
     ThreadInitCallback              threadInitCallback_;
     ConnectionCallback              connectionCallback_;

@@ -15,11 +15,7 @@ Channel::Channel(EventLoop* loop, int fd)
       revents_(0),
       tied_(false),
       handlingEvents_(false),
-      polling_(false),
-      readCallback_(nullptr),
-      writeCallback_(nullptr),
-      closeCallback_(nullptr),
-      errorCallback_(nullptr)
+      polling_(false)
 {}
 
 Channel::~Channel() {

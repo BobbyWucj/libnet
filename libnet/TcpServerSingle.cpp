@@ -2,16 +2,21 @@
 #include "EventLoop.h"
 #include "TcpServerSingle.h"
 #include "TcpConnection.h"
+#include "libnet/Timestamp.h"
+#include "libnet/base/Logger.h"
+#include <any>
 #include <cassert>
+#include <functional>
 
 using namespace libnet;
 
-TcpServerSingle::TcpServerSingle(EventLoop* loop, const InetAddress& local)
+
+TcpServerSingle::TcpServerSingle(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat)
     : loop_(loop),
-      acceptor_(std::make_unique<Acceptor>(loop, local))
+      acceptor_(std::make_unique<Acceptor>(loop, local)),
+      heartbeat_(heartbeat)
 {
-    acceptor_->setNewConnectionCallback([this](int connfd, const InetAddress& localAddr, const InetAddress& peerAddr)
-                                        { this->newConnection(connfd, localAddr, peerAddr); });
+    acceptor_->setNewConnectionCallback(std::bind(&TcpServerSingle::newConnection, this, _1, _2, _3));
 }
 
 void TcpServerSingle::start() {
@@ -20,7 +25,7 @@ void TcpServerSingle::start() {
 
 void TcpServerSingle::newConnection(int connfd, const InetAddress& local, const InetAddress& peer) {
     loop_->assertInLoopThread();
-    auto connPtr = std::make_shared<TcpConnection>(loop_, connfd, local, peer);
+    auto connPtr = std::make_shared<TcpConnection>(loop_, connfd, local, peer, heartbeat_);
     connections_.insert(connPtr);
 
     connPtr->setMessageCallback(messageCallback_);
@@ -30,7 +35,6 @@ void TcpServerSingle::newConnection(int connfd, const InetAddress& local, const 
                             });
     connPtr->connectionEstablished();
     connectionCallback_(connPtr);
-    
 }
 
 void TcpServerSingle::closeConnection(const TcpConnectionPtr& connPtr) {

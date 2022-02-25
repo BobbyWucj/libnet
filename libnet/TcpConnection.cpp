@@ -1,8 +1,11 @@
 #include "TcpConnection.h"
+#include "libnet/TcpServerSingle.h"
+#include "libnet/Timestamp.h"
 #include "libnet/base/Logger.h"
 #include "EventLoop.h"
 
 #include <cassert>
+#include <cerrno>
 #include <cstddef>
 #include <unistd.h>
 
@@ -33,7 +36,8 @@ void defaultMessageCallback(const TcpConnectionPtr& conn, Buffer& buffer)
 TcpConnection::TcpConnection(EventLoop* loop,
                              int cfd,
                              const InetAddress& local,
-                             const InetAddress& peer)
+                             const InetAddress& peer,
+                             const Nanoseconds heartbeat)
     : loop_(loop),
       state_(kConnecting),
       cfd_(cfd),
@@ -42,6 +46,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
       peer_(std::make_unique<InetAddress>(peer)),
       inputBuffer_(std::make_unique<Buffer>()),
       outputBuffer_(std::make_unique<Buffer>()),
+      heartbeat_(heartbeat),
       highWaterMark_(0)
 {
     channel_->setReadCallback([this]{ this->handleRead(); });
@@ -50,13 +55,16 @@ TcpConnection::TcpConnection(EventLoop* loop,
     channel_->setErrorCallback([this]{ this->handleError(); });
 
     LOG_TRACE << "TcpConnection() " << name() << " fd=" << cfd;
+
+    timer_ = loop_->runAfter(heartbeat_, 
+                             std::bind(&TcpConnection::onInactiveConn, this));
 }
 
 TcpConnection::~TcpConnection()
 {
     assert(state_ == kDisconnected);
     ::close(cfd_);
-
+    loop_->cancelTimer(timer_);
     LOG_TRACE << "~TcpConnection() " << name() << " fd=" << cfd_;
 }
 
@@ -167,10 +175,8 @@ void TcpConnection::shutdown() {
         if (loop_->isInLoopThread()) {
             shutdownInLoop();
         } else {
-            loop_->queueInLoop([this]
-                                {
-                                    this->shutdownInLoop();
-                                });
+            loop_->queueInLoop(std::bind(
+                    &TcpConnection::shutdownInLoop, shared_from_this()));
         }
     }
 }
@@ -187,9 +193,8 @@ void TcpConnection::shutdownInLoop() {
 
 void TcpConnection::forceClose() {
     if (state_ != kDisconnected && state_.exchange(kDisconnecting) != kDisconnected) {
-        loop_->queueInLoop([this] {
-                                this->forceCloseInLoop();
-                          });
+        loop_->queueInLoop(std::bind(
+                    &TcpConnection::forceCloseInLoop, shared_from_this()));
     }
 }
 
@@ -220,10 +225,11 @@ void TcpConnection::handleRead() {
     loop_->assertInLoopThread();
     assert(state_ != kDisconnected);
     int savedErrno;
+    timer_->setWhen(clock::now() + timer_->interval());
     ssize_t n = inputBuffer_->readFd(cfd_, &savedErrno);
     if (n == -1) {
         errno = savedErrno;
-        LOG_SYSERR << "TcpConnection::read()";
+        LOG_SYSERR << "TcpConnection::handleRead()";
         handleError();
     } else if (n == 0) {
         handleClose();
@@ -240,6 +246,7 @@ void TcpConnection::handleWrite() {
     }
     assert(outputBuffer_->readableBytes() > 0);
     assert(channel_->isWriting());
+    timer_->setWhen(clock::now() + timer_->interval());
     ssize_t n = ::write(cfd_, outputBuffer_->peek(), outputBuffer_->readableBytes());
     if (n == -1) {
         LOG_SYSERR << "TcpConnection::write()";
@@ -275,6 +282,13 @@ void TcpConnection::handleError() {
     if (ret != -1) {
         errno = err;
     }
-    LOG_SYSERR << "TcpConnection::handleError()";
+    LOG_SYSERR << "TcpConnection::handleError()" << errno;
+}
+
+void TcpConnection::onInactiveConn() {
+    if (timer_->expired(clock::now())) {
+        handleClose();
+        LOG_TRACE << "Connection " << name() << " timeout! Shutdown now!";
+    }
 }
 
