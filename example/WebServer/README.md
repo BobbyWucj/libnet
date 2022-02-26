@@ -1,6 +1,6 @@
 # WebServer
 
-## WebServer 是一个基于 (Libnet)[https://github.com/BobbyWucj/libnet] 的 Http 服务器
+## WebServer 是一个基于 [Libnet](https://github.com/BobbyWucj/libnet) 的 Http 服务器
 
 - 底层socket网络编程基于 Libnet 实现；此项目主要专注于 Http 协议的解析与处理
 
