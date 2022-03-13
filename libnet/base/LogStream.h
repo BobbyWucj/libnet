@@ -10,8 +10,8 @@ namespace libnet {
 namespace logger {
 
 class AsyncLogging;
-const int kSmallBuffer = 4000;
-const int kLargeBuffer = 4000 * 1000;
+const int kSmallBuffer = 4000; // 4KB
+const int kLargeBuffer = 4000 * 1000; // 4MB
 
 template <int SIZE>
 class FixedBuffer : noncopyable 

@@ -68,7 +68,8 @@ private:
     const int fd_;
     int events_;
     int revents_;
-    std::weak_ptr<void> tie_; // 延长TcpConnection的生命周期
+    // 无需增加其引用计数，但在lock()成功时会延长TcpConnection的生命周期
+    std::weak_ptr<void> tie_; 
     bool tied_;
     bool handlingEvents_;
     bool polling_;

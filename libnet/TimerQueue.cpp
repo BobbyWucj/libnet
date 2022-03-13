@@ -1,4 +1,3 @@
-
 #include <cassert>
 #include <sys/timerfd.h>
 #include <strings.h>

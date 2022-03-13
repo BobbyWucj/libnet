@@ -40,7 +40,7 @@ void AsyncLogging::append(const char* logline, size_t len) {
         else
             currentBuffer_.reset(new Buffer);
         currentBuffer_->append(logline, len);
-        cond_.notify_one();
+        cond_.notify_one(); // 唤醒后段写入磁盘
     }
 }
 
@@ -61,7 +61,7 @@ void AsyncLogging::threadFunc() {
 
         {
             std::unique_lock<std::mutex> lock(mutex_);
-            if (buffers_.empty()) {
+            if (buffers_.empty()) { // 非常规用法！没有用while循环
                 cond_.wait_for(lock, std::chrono::seconds(flushInterval_));
             }
             buffers_.push_back(currentBuffer_);
@@ -70,12 +70,12 @@ void AsyncLogging::threadFunc() {
             currentBuffer_ = std::move(newBuffer1);
             buffersToWrite.swap(buffers_);
             if (!nextBuffer_) {
-              nextBuffer_ = std::move(newBuffer2);
+                nextBuffer_ = std::move(newBuffer2);
             }
         }
 
         assert(!buffersToWrite.empty());
-
+        // 日志堆积，直接丢弃
         if (buffersToWrite.size() > 25) {
             buffersToWrite.erase(buffersToWrite.begin() + 2, buffersToWrite.end());
         }

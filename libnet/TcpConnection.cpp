@@ -88,12 +88,10 @@ void TcpConnection::send(const char* data, size_t len) {
     if (loop_->isInLoopThread()) {
         sendInLoop(data, len);
     } else {
-        loop_->queueInLoop([this, str = std::string(data, data + len)]
-                            {
+        loop_->queueInLoop([this, str = std::string(data, data + len)] {
                                 this->sendInLoop(str);
                             });
     }
-
 }
 
 void TcpConnection::send(Buffer& buffer) {
@@ -105,8 +103,7 @@ void TcpConnection::send(Buffer& buffer) {
         sendInLoop(buffer.peek(), buffer.readableBytes());
         buffer.retrieveAll();
     } else {
-        loop_->queueInLoop([this, str = buffer.retrieveAllAsString()]
-                            {
+        loop_->queueInLoop([this, str = buffer.retrieveAllAsString()] {
                                 this->sendInLoop(str);
                             });
     } 
@@ -132,6 +129,7 @@ void TcpConnection::sendInLoop(const char* data, size_t len) {
         if (n == -1) {
             if (errno != EWOULDBLOCK || errno != EINTR || errno != EAGAIN) {
                 LOG_SYSERR << "TcpConnection::write()";
+                // remote closed
                 if (errno == EPIPE || errno == ECONNRESET) {
                     faultError = true;
                 }
@@ -140,21 +138,20 @@ void TcpConnection::sendInLoop(const char* data, size_t len) {
         } else {
             remain -= static_cast<size_t>(n);
             if (remain == 0 && writeCompleteCallback_) {
-                loop_->queueInLoop([this]
-                                    {
+                loop_->queueInLoop([this] {
                                         this->writeCompleteCallback_(this->shared_from_this());
                                     });
             }
         }
     }
-
+    // still remain
     if (!faultError && remain > 0) {
         if (highWaterMarkCallback_) {
             size_t oldLen = outputBuffer_->readableBytes();
             size_t newLen = oldLen + remain;
+            // 超过高水位标记
             if (oldLen < highWaterMark_ && newLen >= highWaterMark_) {
-                loop_->queueInLoop([this, &newLen]
-                                    {
+                loop_->queueInLoop([this, &newLen] {
                                         this->highWaterMarkCallback_(this->shared_from_this(), newLen);
                                     });
             }
@@ -288,7 +285,7 @@ void TcpConnection::handleError() {
 void TcpConnection::onInactiveConn() {
     if (timer_->expired(clock::now())) {
         handleClose();
-        LOG_TRACE << "Connection " << name() << " timeout! Shutdown now!";
+        LOG_INFO << "Connection " << name() << " timeout! Shutdown now!";
     }
 }
 

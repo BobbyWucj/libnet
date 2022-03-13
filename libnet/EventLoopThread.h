@@ -1,6 +1,8 @@
 #ifndef LIBNET_EVENTLOOPTHREAD_H
 #define LIBNET_EVENTLOOPTHREAD_H
 
+// EventLoopThread.h(cpp) is not used !!!
+
 #include <thread>
 #include "libnet/base/CountDownLatch.h"
 #include "libnet/base/noncopyable.h"

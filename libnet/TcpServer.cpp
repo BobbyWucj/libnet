@@ -45,8 +45,7 @@ void TcpServer::start() {
     if (started_.exchange(true)) {
         return;
     }
-    baseLoop_->runInLoop([this]() 
-                        {
+    baseLoop_->runInLoop([this]() {
                             this->startInLoop();
                         });
 }
@@ -65,8 +64,7 @@ void TcpServer::startInLoop() {
 
     // create numThreads-1 threads and loop
     for (size_t i = 1; i < numThreads_; ++i) {
-        auto thread = new std::thread([this, i]()
-                                     {
+        auto thread = new std::thread([this, i]() {
                                         this->runInThread(i);
                                      });
         {
