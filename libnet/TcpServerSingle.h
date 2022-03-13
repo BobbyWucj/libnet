@@ -5,7 +5,9 @@
 #include "Callbacks.h"
 #include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
+#include "libnet/EventLoopThreadPool.h"
 
+#include <cstddef>
 #include <memory>
 #include <unordered_set>
 
@@ -17,6 +19,8 @@ class EventLoop;
 class TcpServerSingle : noncopyable 
 {
 public:
+    using ConnectionSet = std::unordered_set<TcpConnectionPtr>;
+
     TcpServerSingle(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat);
 
     void start();
@@ -30,11 +34,16 @@ public:
     void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) 
     { writeCompleteCallback_ = writeCompleteCallback; }
 
-private:
-    void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
     void closeConnection(const TcpConnectionPtr& conn);
 
-    using ConnectionSet = std::unordered_set<TcpConnectionPtr>;
+    ConnectionSet connections() const { return connections_; }
+
+    void disableReusePort(size_t numThreads);
+
+    size_t threadNum() const;
+
+private:
+    void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
 
     EventLoop*                  loop_;
     std::unique_ptr<Acceptor>   acceptor_;
@@ -43,6 +52,9 @@ private:
     MessageCallback             messageCallback_;
     WriteCompleteCallback       writeCompleteCallback_;
     Nanoseconds                 heartbeat_;
+
+    bool reusePort_;
+    std::unique_ptr<EventLoopThreadPool> threadPool_;
 };
 
 } // namespace libnet

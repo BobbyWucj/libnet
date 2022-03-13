@@ -14,7 +14,7 @@ class EventLoop;
 class Acceptor : noncopyable
 {
 public:
-    Acceptor(EventLoop* loop, const InetAddress& listenAddr);
+    Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusePort = true);
     ~Acceptor();
 
     void listen();
@@ -34,6 +34,7 @@ private:
     std::unique_ptr<Channel>    listenChannel_;
     InetAddress                 listenAddr_;
     NewConnectionCallback       newConnectionCallback_;
+    bool                        reusePort_;
 };
 
 

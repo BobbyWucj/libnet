@@ -25,14 +25,15 @@ int createSocket() {
 
 } // anonymous namespace
 
-Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
+Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusePort)
     : listening_(false),
       listenFd_(createSocket()),
       emfileFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC)),
       loop_(loop),
       listenChannel_(std::make_unique<Channel>(loop, listenFd_)),
       listenAddr_(listenAddr),
-      newConnectionCallback_(nullptr)
+      newConnectionCallback_(nullptr),
+      reusePort_(reusePort)
 {
     assert(emfileFd_ > 0);
     assert(listenFd_ > 0);
@@ -43,10 +44,14 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     if (ret == -1) {
         LOG_SYSFATAL << "Acceptor::setsocketopt() SO_REUSEADDRESS";
     }
-    ret = ::setsockopt(listenFd_, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
-    if (ret == -1) {
-        LOG_SYSFATAL << "Acceptor::setsocketopt() SO_REUSEPORT";
+    // enable SO_REUSEPORT: default value
+    if (reusePort_) {
+        ret = ::setsockopt(listenFd_, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
+        if (ret == -1) {
+            LOG_SYSFATAL << "Acceptor::setsocketopt() SO_REUSEPORT";
+        }
     }
+    
     ret = ::bind(listenFd_, listenAddr_.getSockaddr(), listenAddr_.getSocklen());
     if (ret == -1) {
         LOG_SYSFATAL << "Acceptor::bind()";

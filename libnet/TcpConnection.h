@@ -78,6 +78,8 @@ public:
 
     void onInactiveConn();
 
+    EventLoop* getLoop() const { return loop_; }
+
 private:
     enum State {
         kConnecting,

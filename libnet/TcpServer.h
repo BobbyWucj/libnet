@@ -3,11 +3,13 @@
 
 #include "Callbacks.h"
 #include "InetAddress.h"
+#include "libnet/EventLoopThreadPool.h"
 #include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
 
 #include <atomic>
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -39,9 +41,13 @@ public:
 
     const std::string& ipPort() const { return ipPort_; }
 
+    void disableReusePort() { reusePort_ = false; }
+
 private:
     void startInLoop();
     void runInThread(const size_t index);
+
+    void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
 
     using ThreadPtr = std::unique_ptr<std::thread>;
     using ThreadPtrList = std::vector<ThreadPtr>;
@@ -56,9 +62,11 @@ private:
     std::atomic<bool>               started_;
     InetAddress                     local_;
     const std::string               ipPort_;
-    mutable std::mutex              mutex_;
-    mutable std::condition_variable cond_;
+    std::mutex                      mutex_;
+    std::condition_variable         cond_;
     Nanoseconds                     heartbeat_;
+
+    bool                            reusePort_;
 
     ThreadInitCallback              threadInitCallback_;
     ConnectionCallback              connectionCallback_;

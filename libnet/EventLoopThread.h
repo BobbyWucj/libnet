@@ -1,9 +1,8 @@
 #ifndef LIBNET_EVENTLOOPTHREAD_H
 #define LIBNET_EVENTLOOPTHREAD_H
 
-// EventLoopThread.h(cpp) is not used !!!
-
 #include <thread>
+#include "libnet/Callbacks.h"
 #include "libnet/base/CountDownLatch.h"
 #include "libnet/base/noncopyable.h"
 
@@ -15,7 +14,7 @@ class EventLoop;
 class EventLoopThread : noncopyable
 {
 public:
-    EventLoopThread();
+    explicit EventLoopThread();
     ~EventLoopThread();
 
     EventLoop* startLoop();
