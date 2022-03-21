@@ -34,8 +34,6 @@ public:
     void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) 
     { writeCompleteCallback_ = writeCompleteCallback; }
 
-    void closeConnection(const TcpConnectionPtr& conn);
-
     ConnectionSet connections() const { return connections_; }
 
     void disableReusePort(size_t numThreads);
@@ -44,6 +42,8 @@ public:
 
 private:
     void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
+    void closeConnection(const TcpConnectionPtr& conn);
+    void closeConnectionInLoop(const TcpConnectionPtr &connPtr);
 
     EventLoop*                  loop_;
     std::unique_ptr<Acceptor>   acceptor_;
@@ -55,6 +55,7 @@ private:
 
     bool reusePort_;
     std::unique_ptr<EventLoopThreadPool> threadPool_;
+
 };
 
 } // namespace libnet

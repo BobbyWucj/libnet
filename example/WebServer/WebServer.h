@@ -57,6 +57,10 @@ public:
     std::string root() const { return root_; }
     void setRoot(const std::string &root) { root_ = root; }
 
+    void disableReusePort() {
+        server_.disableReusePort();
+    }
+
 private:
     void onConnection(const TcpConnectionPtr& conn);
     void onMessage(const TcpConnectionPtr& conn, Buffer& buffer);

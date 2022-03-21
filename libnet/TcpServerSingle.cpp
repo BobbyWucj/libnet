@@ -30,10 +30,10 @@ void TcpServerSingle::start() {
 
 void TcpServerSingle::newConnection(int connfd, const InetAddress& local, const InetAddress& peer) {
     EventLoop* ioLoop = loop_;
+    ioLoop->assertInLoopThread();
     if (!reusePort_ && threadPool_) {
         ioLoop = threadPool_->getNextLoop();
     }
-    ioLoop->assertInLoopThread();
     auto connPtr = std::make_shared<TcpConnection>(ioLoop, connfd, local, peer, heartbeat_);
     connections_.insert(connPtr);
 
@@ -42,11 +42,15 @@ void TcpServerSingle::newConnection(int connfd, const InetAddress& local, const 
     connPtr->setCloseCallback([this](const TcpConnectionPtr& conn) {
                                 this->closeConnection(conn);
                             });
+    connPtr->setConnectionCallback(connectionCallback_);
     ioLoop->runInLoop(std::bind(&TcpConnection::connectionEstablished, connPtr));
-    connectionCallback_(connPtr);
 }
 
 void TcpServerSingle::closeConnection(const TcpConnectionPtr& connPtr) {
+    loop_->runInLoop(std::bind(&TcpServerSingle::closeConnectionInLoop, this, connPtr));
+}
+
+void TcpServerSingle::closeConnectionInLoop(const TcpConnectionPtr &connPtr) {
     loop_->assertInLoopThread();
     auto ret = connections_.erase(connPtr);
     assert(ret == 1);(void)ret;

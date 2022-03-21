@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <string>
 #include <any>
+#include <utility>
 
 namespace libnet
 {
@@ -53,6 +54,7 @@ public:
         highWaterMarkCallback_ = highWaterMarkCallback;
         highWaterMark_ = highWaterMark;
     }
+    void setConnectionCallback(const ConnectionCallback &connectionCallback) { connectionCallback_ = connectionCallback; }
 
     void setMessageCallback(MessageCallback &&messageCallback) { messageCallback_ = std::move(messageCallback); }
     void setCloseCallback(CloseCallback &&closeCallback) { closeCallback_ = std::move(closeCallback); }
@@ -61,6 +63,7 @@ public:
         highWaterMarkCallback_ = std::move(highWaterMarkCallback);
         highWaterMark_ = highWaterMark;
     }
+    void setConnectionCallback(ConnectionCallback &&connectionCallback) { connectionCallback_ = std::move(connectionCallback); }
 
     const InetAddress& local() const { return *local_; }
     const InetAddress& peer() const { return *peer_; }
@@ -115,6 +118,7 @@ private:
     CloseCallback                   closeCallback_;
     WriteCompleteCallback           writeCompleteCallback_;
     HighWaterMarkCallback           highWaterMarkCallback_;
+    ConnectionCallback              connectionCallback_;
     size_t                          highWaterMark_;
 
 };

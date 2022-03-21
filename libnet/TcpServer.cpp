@@ -39,7 +39,7 @@ TcpServer::~TcpServer()
 
 void TcpServer::setNumThreads(size_t numThreads) {
     baseLoop_->assertInLoopThread();
-    assert(numThreads >= 0);
+    assert(numThreads > 0);
     assert(!started_);
     numThreads_ = numThreads;
     if (reusePort_) {
