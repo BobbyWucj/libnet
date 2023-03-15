@@ -13,7 +13,6 @@ TcpClient::TcpClient(EventLoop* loop, const InetAddress& peer)
     : loop_(loop),
       connected_(false),
       peer_(peer),
-      retryTimer_(nullptr),
       connector_(std::make_unique<Connector>(loop, peer)),
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback)
@@ -59,7 +58,7 @@ void libnet::TcpClient::retry() {
 void TcpClient::newConnection(int connfd, const InetAddress& local, const InetAddress& peer) {
     loop_->assertInLoopThread();
     loop_->cancelTimer(retryTimer_);
-    retryTimer_ = nullptr;
+    retryTimer_.reset();
     connected_ = true;
 
     auto conn = std::make_shared<TcpConnection>(loop_, connfd, local, peer, 10s);

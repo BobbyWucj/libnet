@@ -101,25 +101,25 @@ void EventLoop::removeChannel(Channel* channel) {
     LOG_TRACE << "EventLoop " << this << " remove Channel " << channel;
 }
 
-Timer* EventLoop::runAt(Timestamp when, TimerCallback callback) {
+Timer::sptr EventLoop::runAt(Timestamp when, TimerCallback callback) {
     return timerQueue_.addTimer(std::move(callback), when);
 }
 
-Timer* EventLoop::runAfter(Nanoseconds interval, TimerCallback callback) {
+Timer::sptr EventLoop::runAfter(Nanoseconds interval, TimerCallback callback) {
     return timerQueue_.addTimer(std::move(callback), 
                                 clock::now() + interval, 
                                 interval, 
                                 false);
 }
 
-Timer* EventLoop::runEvery(Nanoseconds interval, TimerCallback callback) {
+Timer::sptr EventLoop::runEvery(Nanoseconds interval, TimerCallback callback) {
     return timerQueue_.addTimer(std::move(callback),
                                 clock::now() + interval,
                                 interval,
                                 true);
 }
 
-void EventLoop::cancelTimer(Timer* timer) {
+void EventLoop::cancelTimer(Timer::sptr timer) {
     timerQueue_.cancelTimer(timer);
 }
 

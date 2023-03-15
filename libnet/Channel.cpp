@@ -64,6 +64,3 @@ void Channel::remove() {
     assert(polling());
     loop_->removeChannel(this);
 }
-
-
-

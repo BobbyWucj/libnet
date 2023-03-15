@@ -1,4 +1,5 @@
 #include <cassert>
+#include <memory>
 #include <sys/timerfd.h>
 #include <strings.h>
 #include <unistd.h>
@@ -44,7 +45,7 @@ struct timespec durationFromNow(Timestamp when) {
 void timerfdSet(int fd, Timestamp when) {
     struct itimerspec oldtime, newtime;
     bzero(&oldtime, sizeof(itimerspec));
-    bzero(&newtime, sizeof(itimerspec)); 
+    bzero(&newtime, sizeof(itimerspec));
     newtime.it_value = durationFromNow(when);
 
     int ret = timerfd_settime(fd, 0, &newtime, &oldtime);
@@ -66,18 +67,11 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
-    while (!timers_.empty()) {
-        auto timer = timers_.top();
-        timers_.pop();
-        if (timer) {
-            delete timer;
-        }
-    }
     ::close(timerfd_);
 }
 
-Timer* TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval, bool repeat) {
-    Timer* timer = new Timer(std::move(cb), when, interval, repeat);
+Timer::sptr TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval, bool repeat) {
+    auto timer = std::make_shared<Timer>(std::move(cb), when, interval, repeat);
     loop_->runInLoop([=] {
                         timers_.push(timer);
                         // update timerfd expire-time
@@ -88,7 +82,7 @@ Timer* TimerQueue::addTimer(TimerCallback cb, Timestamp when, Nanoseconds interv
     return timer;
 }
 
-void TimerQueue::cancelTimer(Timer* timer) {
+void TimerQueue::cancelTimer(Timer::sptr timer) {
     loop_->runInLoop([timer] {
                          timer->cancel();
                          // delay deletion
@@ -103,7 +97,7 @@ void TimerQueue::handleRead() {
     Timestamp now(clock::now());
 
     while (!timers_.empty()) {
-        Timer* timer = timers_.top();
+        auto timer = timers_.top();
         if (!timer->expired(now)) {
             break;
         }
@@ -117,16 +111,10 @@ void TimerQueue::handleRead() {
         if (!timer->canceled() && timer->repeat()) {
             timer->restart();
             timers_.emplace(std::move(timer));
-        } else {
-            delete timer; // true delete
         }
+        // true delete
     }
     // update timerfd expire-time
     if (!timers_.empty())
         timerfdSet(timerfd_, timers_.top()->when());
-}
-
-void TimerQueue::updateTimer(Timer* timer, Timestamp when) {
-    assert(when > clock::now());
-    timer->setWhen(when);
 }

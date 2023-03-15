@@ -46,13 +46,12 @@ public:
 
     bool isInLoopThread() const;
 
-    Timer* runAt(Timestamp when, TimerCallback callback);
-    Timer* runAfter(Nanoseconds interval, TimerCallback callback);
-    Timer* runEvery(Nanoseconds interval, TimerCallback callback);
-    void cancelTimer(Timer* timer);
+    Timer::sptr runAt(Timestamp when, TimerCallback callback);
+    Timer::sptr runAfter(Nanoseconds interval, TimerCallback callback);
+    Timer::sptr runEvery(Nanoseconds interval, TimerCallback callback);
+    void cancelTimer(Timer::sptr timer);
 
     void wakeup();
-
 private:
     using ChannelList = std::vector<Channel*>;
     using TaskList = std::vector<Task>;

@@ -78,7 +78,6 @@ private:
     EventCallback writeCallback_;
     EventCallback closeCallback_;
     EventCallback errorCallback_;
-
 };
 
 } // namespace of libnet

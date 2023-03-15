@@ -29,6 +29,6 @@ private:
     TcpServer server_;
     const size_t numThread_;
     const Nanoseconds timeout_;
-    Timer* timer_;
+    Timer::sptr timer_;
     ConnectionList connections_;
 };

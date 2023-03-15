@@ -5,6 +5,8 @@
 #include "libnet/base/noncopyable.h"
 #include "InetAddress.h"
 #include "Channel.h"
+#include <algorithm>
+#include <memory>
 
 namespace libnet
 {
@@ -14,6 +16,8 @@ class EventLoop;
 class Acceptor : noncopyable
 {
 public:
+    using ptr = std::unique_ptr<Acceptor>;
+
     Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusePort = true);
     ~Acceptor();
 

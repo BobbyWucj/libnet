@@ -106,7 +106,7 @@ void WebServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& reque
 
     conn->send(buffer);
     if (response.closeConnection()) {
-        conn->shutdown();
+        conn->forceClose();
     }
 }
 

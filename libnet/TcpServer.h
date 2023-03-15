@@ -3,6 +3,7 @@
 
 #include "Callbacks.h"
 #include "InetAddress.h"
+#include "TcpReactor.h"
 #include "libnet/EventLoopThreadPool.h"
 #include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
@@ -19,14 +20,16 @@ namespace libnet
 {
 
 class EventLoop;
-class TcpServerSingle;
 class EventLoopThread;
 
 class TcpServer : noncopyable
 {
 public:
-    TcpServer(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat = 5s);
+    TcpServer(EventLoop* loop, const InetAddress& local, bool reusePort = true, const Nanoseconds heartbeat = 5s);
     ~TcpServer();
+
+    // should be called before start
+    void disableReusePort() { reusePort_ = false; }
 
     void setNumThreads(size_t numThreads);
 
@@ -37,11 +40,9 @@ public:
     void setMessageCallback(const MessageCallback &messageCallback) { messageCallback_ = messageCallback; }
     void setWriteCompleteCallback(const WriteCompleteCallback &writeCompleteCallback) { writeCompleteCallback_ = writeCompleteCallback; }
 
+    size_t numThreads() const { return numThreads_; }
     EventLoop* getLoop() const { return baseLoop_; }
-
     const std::string& ipPort() const { return ipPort_; }
-
-    void disableReusePort() { reusePort_ = false; }
 
 private:
     void startInLoop();
@@ -51,15 +52,15 @@ private:
 
     using ThreadPtr = std::unique_ptr<std::thread>;
     using ThreadPtrList = std::vector<ThreadPtr>;
-    using TcpServerSinglePtr = std::unique_ptr<TcpServerSingle>;
     using EventLoopList = std::vector<EventLoop*>;
 
     EventLoop*                      baseLoop_;
-    TcpServerSinglePtr              baseServer_;
+    TcpReactor::ptr                 reactor_;
+
     ThreadPtrList                   threads_;
     EventLoopList                   eventLoops_;
     size_t                          numThreads_;
-    std::atomic<bool>               started_;
+    std::atomic_bool                started_;
     InetAddress                     local_;
     const std::string               ipPort_;
     std::mutex                      mutex_;

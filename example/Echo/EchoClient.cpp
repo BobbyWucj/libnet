@@ -52,7 +52,7 @@ int main()
 {
     Logger::setLogLevel(Logger::ERROR);
     EventLoop loop;
-    InetAddress peer("192.168.xxx.xxx", 9877);
+    InetAddress peer("127.0.0.1", 9877);
     EchoClient client(&loop, peer);
     client.start();
     loop.loop();

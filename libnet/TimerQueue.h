@@ -16,7 +16,7 @@ namespace libnet
 {
 
 struct TimerCmp {
-    bool operator()(Timer* lhs, Timer* rhs) {
+    bool operator()(Timer::sptr lhs, Timer::sptr rhs) {
         return lhs->when() > rhs->when();
     }
 };
@@ -27,11 +27,11 @@ public:
     explicit TimerQueue(EventLoop* loop);
     ~TimerQueue();
 
-    Timer* addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval = Milliseconds::zero(), bool repeat = false);
+    Timer::sptr addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval = Milliseconds::zero(), bool repeat = false);
 
-    void cancelTimer(Timer* timer);
+    void cancelTimer(Timer::sptr timer);
 
-    void updateTimer(Timer* timer, Timestamp when);
+    void updateTimer(Timer::sptr timer, Timestamp when);
 
     int64_t nextTimeout() const {
         if (timers_.empty()) {
@@ -44,8 +44,10 @@ public:
         return std::chrono::duration_cast<Milliseconds>(interval).count();
     }
 
+    int timerfd() const { return timerfd_; }
+
 private:
-    using TimerHeap = std::priority_queue<Timer*, std::deque<Timer*>, TimerCmp>;
+    using TimerHeap = std::priority_queue<Timer::sptr, std::vector<Timer::sptr>, TimerCmp>;
 
     void handleRead();
 

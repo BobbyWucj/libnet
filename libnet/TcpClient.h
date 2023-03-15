@@ -42,7 +42,7 @@ private:
     EventLoop*              loop_;
     bool                    connected_;
     InetAddress             peer_;
-    Timer*                  retryTimer_;
+    Timer::sptr             retryTimer_;
     ConnectorPtr            connector_;
     TcpConnectionPtr        connection_;
     ConnectionCallback      connectionCallback_;

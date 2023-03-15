@@ -1,22 +1,30 @@
+/*
+ * TcpServer.cpp
+ * Created on 2022/3/9
+ * Copyright (c) 2022 BobbyWucj
+ *
+ * TCP Server
+ */
+
 #include "TcpServer.h"
 #include "libnet/EventLoopThreadPool.h"
 #include "libnet/base/Logger.h"
 #include "EventLoop.h"
-#include "TcpServerSingle.h"
+#include "TcpMainReactor.h"
+#include "TcpSubReactor.h"
 #include "TcpConnection.h"
 #include <memory>
 
-
 using namespace libnet;
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& local, bool reusePort, const Nanoseconds heartbeat)
     : baseLoop_(loop),
       numThreads_(1),
       started_(false),
       local_(local),
       ipPort_(local.toIpPort()),
       heartbeat_(heartbeat),
-      reusePort_(true),
+      reusePort_(reusePort),
       threadInitCallback_(defaultThreadInitCallback),
       connectionCallback_(defaultConnectionCallback),
       messageCallback_(defaultMessageCallback)
@@ -42,9 +50,6 @@ void TcpServer::setNumThreads(size_t numThreads) {
     assert(numThreads > 0);
     assert(!started_);
     numThreads_ = numThreads;
-    if (reusePort_) {
-        eventLoops_.resize(numThreads);
-    }
 }
 
 void TcpServer::start() {
@@ -52,31 +57,29 @@ void TcpServer::start() {
         return;
     }
     baseLoop_->runInLoop([this]() {
-                        this->startInLoop();
-                    });
+                            this->startInLoop();
+                        });
 }
 
 void TcpServer::startInLoop() {
     LOG_INFO << "TcpServer::start() " << local_.toIpPort() << " with " << numThreads_ << " eventLoop thread(s)";
     
-    baseServer_ = std::make_unique<TcpServerSingle>(baseLoop_, local_, heartbeat_);
-
-    if (!reusePort_) {
-        baseServer_->disableReusePort(numThreads_);
+    if (reusePort_) {
+        reactor_ = std::make_unique<TcpSubReactor>(baseLoop_, local_, heartbeat_);
+        eventLoops_.resize(numThreads_);
+    } else {
+        reactor_ = std::make_unique<TcpMainReactor>(baseLoop_, local_, heartbeat_);
+        dynamic_cast<TcpMainReactor*>(reactor_.get())->setNumThreads(numThreads_);
     }
 
-    baseServer_->setConnectionCallback(connectionCallback_);
-    baseServer_->setMessageCallback(messageCallback_);
-    baseServer_->setWriteCompleteCallback(writeCompleteCallback_);
+    reactor_->setConnectionCallback(connectionCallback_);
+    reactor_->setMessageCallback(messageCallback_);
+    reactor_->setWriteCompleteCallback(writeCompleteCallback_);
 
     // main thread
     threadInitCallback_(0);
-    // if reusePort == false
-    // baseServer_ will create numThreads-1 threads and loop
-    // only baseServer_ own an acceptor
-    // when new-connection comed, 
-    // baseServer_ will distribute TcpConnection to EventLoopThreadPool with Round-Robin
-    baseServer_->start();
+
+    reactor_->start();
 
     // reusePort == true, will create numThreads-1 threads and loop
     // every threads(loop) own an acceptor
@@ -101,11 +104,11 @@ void TcpServer::startInLoop() {
 void TcpServer::runInThread(const size_t index) {
     EventLoop loop;
     // stack variable
-    TcpServerSingle server(&loop, local_, heartbeat_);
+    TcpSubReactor reactor(&loop, local_, heartbeat_);
 
-    server.setConnectionCallback(connectionCallback_);
-    server.setMessageCallback(messageCallback_);
-    server.setWriteCompleteCallback(writeCompleteCallback_);
+    reactor.setConnectionCallback(connectionCallback_);
+    reactor.setMessageCallback(messageCallback_);
+    reactor.setWriteCompleteCallback(writeCompleteCallback_);
 
     {
         std::lock_guard<std::mutex> guard(mutex_);
@@ -114,7 +117,7 @@ void TcpServer::runInThread(const size_t index) {
     }
 
     threadInitCallback_(index);
-    server.start();
+    reactor.start();
     loop.loop();
 
     // stop looping

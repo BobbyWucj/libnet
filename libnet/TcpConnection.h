@@ -33,6 +33,7 @@ public:
     ~TcpConnection();
 
     void connectionEstablished();
+    void connectionDestroyed();
     bool connected() const { return state_ == kConnected; }
     bool disconnected() const { return state_ == kDisconnected; }
 
@@ -76,11 +77,6 @@ public:
     std::any* getMutableContext() { return &context_; }
     void setContext(const std::any& context) { context_ = context; }
 
-    Timer* timer() const { return timer_; }
-    void setTimer(Timer* timer) { timer_ = timer; }
-
-    void onInactiveConn();
-
     EventLoop* getLoop() const { return loop_; }
 
 private:
@@ -111,8 +107,6 @@ private:
     std::unique_ptr<Buffer>         inputBuffer_;
     std::unique_ptr<Buffer>         outputBuffer_;
     std::any                        context_;
-    Timer*                          timer_;
-    Nanoseconds                     heartbeat_;
 
     MessageCallback                 messageCallback_;
     CloseCallback                   closeCallback_;
@@ -120,7 +114,6 @@ private:
     HighWaterMarkCallback           highWaterMarkCallback_;
     ConnectionCallback              connectionCallback_;
     size_t                          highWaterMark_;
-
 };
 
 }

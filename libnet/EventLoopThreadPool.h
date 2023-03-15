@@ -8,7 +8,6 @@
 #include "libnet/EventLoopThread.h"
 #include "libnet/base/Logger.h"
 
-
 namespace libnet
 {
 
@@ -17,6 +16,8 @@ class EventLoop;
 class EventLoopThreadPool
 {
 public:
+    using ptr = std::shared_ptr<EventLoopThreadPool>;
+
     EventLoopThreadPool(EventLoop* baseLoop, size_t numThreads);
     ~EventLoopThreadPool() {
         LOG_INFO << "~EventLoopThreadPool()";
@@ -25,7 +26,6 @@ public:
     void start();
 
     EventLoop* getNextLoop();
-
     size_t numThreads() const { return numThreads_; }
     
 private:

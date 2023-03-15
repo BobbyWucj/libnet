@@ -12,7 +12,9 @@ SET(SRC
     TcpClient.cpp
     TcpConnection.cpp
     TcpServer.cpp
-    TcpServerSingle.cpp
+    TcpReactor.cpp
+    TcpMainReactor.cpp
+    TcpSubReactor.cpp
     ThreadPool.cpp
     TimerQueue.cpp)
 
@@ -34,7 +36,9 @@ SET(HEADERS
     TcpClient.h
     TcpConnection.h
     TcpServer.h
-    TcpServerSingle.h
+    TcpReactor.h
+    TcpMainReactor.h
+    TcpSubReactor.h
     ThreadPool.h
     Timer.h
     TimerQueue.h

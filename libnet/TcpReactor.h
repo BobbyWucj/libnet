@@ -1,29 +1,39 @@
-#ifndef LIBNET_TCPSERVERSINGLE_H
-#define LIBNET_TCPSERVERSINGLE_H
+/*
+ * TcpReactor.h
+ * Created on 2023/3/9
+ * Copyright (c) 2023 BobbyWucj
+ *
+ * Reactor 基类
+ */
+
+#ifndef TCPREACTOR_H
+#define TCPREACTOR_H
 
 #include "Acceptor.h"
 #include "Callbacks.h"
 #include "libnet/Timestamp.h"
 #include "libnet/base/noncopyable.h"
 #include "libnet/EventLoopThreadPool.h"
+#include "libnet/TimerQueue.h"
 
 #include <cstddef>
 #include <memory>
 #include <unordered_set>
+#include <atomic>
 
-namespace libnet 
+namespace libnet
 {
 
-class EventLoop;
-
-class TcpServerSingle : noncopyable 
+class TcpReactor : noncopyable
 {
 public:
+    using ptr = std::unique_ptr<TcpReactor>;
     using ConnectionSet = std::unordered_set<TcpConnectionPtr>;
 
-    TcpServerSingle(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat);
+    TcpReactor(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat);
+    virtual ~TcpReactor();
 
-    void start();
+    virtual void start() = 0;
 
     void setConnectionCallback(const ConnectionCallback &connectionCallback) 
     { connectionCallback_ = connectionCallback; }
@@ -36,28 +46,20 @@ public:
 
     ConnectionSet connections() const { return connections_; }
 
-    void disableReusePort(size_t numThreads);
-
-    size_t threadNum() const;
-
-private:
-    void newConnection(int connfd, const InetAddress& local, const InetAddress& peer);
-    void closeConnection(const TcpConnectionPtr& conn);
-    void closeConnectionInLoop(const TcpConnectionPtr &connPtr);
+protected:
+    virtual void newConnection(int connfd, const InetAddress& local, const InetAddress& peer) = 0;
+    virtual void closeConnection(const TcpConnectionPtr& conn) = 0;
+    virtual void closeConnectionInLoop(const TcpConnectionPtr &connPtr) = 0;
 
     EventLoop*                  loop_;
-    std::unique_ptr<Acceptor>   acceptor_;
+    Acceptor::ptr               acceptor_;
     ConnectionSet               connections_;
     ConnectionCallback          connectionCallback_;
     MessageCallback             messageCallback_;
     WriteCompleteCallback       writeCompleteCallback_;
     Nanoseconds                 heartbeat_;
-
-    bool reusePort_;
-    std::unique_ptr<EventLoopThreadPool> threadPool_;
-
+    std::atomic_bool            started_;
 };
+}
 
-} // namespace libnet
-
-#endif // LIBNET_TCPSERVERSINGLE_H
+#endif // TCPREACTOR_H

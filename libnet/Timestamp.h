@@ -56,8 +56,6 @@ inline void IntervalTypeCheck(T) {
     static_assert(IntervalTypeCheckImpl<T>::value, "bad interval value");
 }
 
-
 } // namespace libnet
-
 
 #endif // LIBNET_TIMESTAMP_H

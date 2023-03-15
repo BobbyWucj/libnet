@@ -1,5 +1,4 @@
 #include "TcpConnection.h"
-#include "libnet/TcpServerSingle.h"
 #include "libnet/Timestamp.h"
 #include "libnet/base/Logger.h"
 #include "EventLoop.h"
@@ -46,7 +45,6 @@ TcpConnection::TcpConnection(EventLoop* loop,
       peer_(std::make_unique<InetAddress>(peer)),
       inputBuffer_(std::make_unique<Buffer>()),
       outputBuffer_(std::make_unique<Buffer>()),
-      heartbeat_(heartbeat),
       highWaterMark_(0)
 {
     channel_->setReadCallback([this]{ this->handleRead(); });
@@ -55,16 +53,12 @@ TcpConnection::TcpConnection(EventLoop* loop,
     channel_->setErrorCallback([this]{ this->handleError(); });
 
     LOG_TRACE << "TcpConnection() " << name() << " fd=" << cfd;
-
-    timer_ = loop_->runAfter(heartbeat_, 
-                             std::bind(&TcpConnection::onInactiveConn, this));
 }
 
 TcpConnection::~TcpConnection()
 {
     assert(state_ == kDisconnected);
     ::close(cfd_);
-    loop_->cancelTimer(timer_);
     LOG_TRACE << "~TcpConnection() " << name() << " fd=" << cfd_;
 }
 
@@ -75,6 +69,17 @@ void TcpConnection::connectionEstablished() {
     channel_->enableReading();
 
     connectionCallback_(shared_from_this());
+}
+
+void TcpConnection::connectionDestroyed() {
+    loop_->assertInLoopThread();
+    if (state_ == kConnected) {
+        state_.exchange(kDisconnected);
+        channel_->disableAll();
+        
+        connectionCallback_(shared_from_this());
+    }
+    channel_->remove();
 }
 
 void TcpConnection::send(const std::string& data) {
@@ -192,8 +197,12 @@ void TcpConnection::shutdownInLoop() {
 
 void TcpConnection::forceClose() {
     if (state_ != kDisconnected && state_.exchange(kDisconnecting) != kDisconnected) {
-        loop_->queueInLoop(std::bind(
+        if (loop_->isInLoopThread()) {
+            forceCloseInLoop();
+        } else {
+            loop_->queueInLoop(std::bind(
                     &TcpConnection::forceCloseInLoop, shared_from_this()));
+        }
     }
 }
 
@@ -224,11 +233,10 @@ void TcpConnection::handleRead() {
     loop_->assertInLoopThread();
     assert(state_ != kDisconnected);
     int savedErrno;
-    timer_->setWhen(clock::now() + timer_->interval());
     ssize_t n = inputBuffer_->readFd(cfd_, &savedErrno);
     if (n == -1) {
         errno = savedErrno;
-        LOG_SYSERR << "TcpConnection::handleRead()";
+        LOG_SYSERR << "TcpConnection::handleRead()" << savedErrno;
         handleError();
     } else if (n == 0) {
         handleClose();
@@ -245,7 +253,6 @@ void TcpConnection::handleWrite() {
     }
     assert(outputBuffer_->readableBytes() > 0);
     assert(channel_->isWriting());
-    timer_->setWhen(clock::now() + timer_->interval());
     ssize_t n = ::write(cfd_, outputBuffer_->peek(), outputBuffer_->readableBytes());
     if (n == -1) {
         LOG_SYSERR << "TcpConnection::write()";
@@ -271,8 +278,6 @@ void TcpConnection::handleClose() {
     auto old_state = state_.exchange(kDisconnected);
     assert(old_state <= kDisconnecting);(void)old_state;
     loop_->removeChannel(channel_.get());
-    
-    connectionCallback_(this->shared_from_this());
     closeCallback_(this->shared_from_this());
 }
 
@@ -285,11 +290,3 @@ void TcpConnection::handleError() {
     }
     LOG_SYSERR << "TcpConnection::handleError()" << errno;
 }
-
-void TcpConnection::onInactiveConn() {
-    if (timer_->expired(clock::now())) {
-        handleClose();
-        LOG_INFO << "Connection " << name() << " timeout! Shutdown now!";
-    }
-}
-

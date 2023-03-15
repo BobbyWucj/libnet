@@ -3,6 +3,7 @@
 
 #include <any>
 #include <cassert>
+#include <memory>
 #include "Callbacks.h"
 #include "Channel.h"
 #include "Timestamp.h"
@@ -13,6 +14,8 @@ namespace libnet
 class Timer: noncopyable
 {
 public:
+    using sptr = std::shared_ptr<Timer>;
+
     Timer(TimerCallback callback, Timestamp when, Nanoseconds interval, bool repeat)
         : callback_(std::move(callback)),
         when_(when),
@@ -40,15 +43,11 @@ public:
     
     // getter
     Timestamp when() const { return when_; }
-    void setWhen(const Timestamp when) { when_ = when; }
     bool repeat() const { return repeat_; }
     bool canceled() const { return canceled_; }
 
     const TimerCallback& timerCallback() const { return callback_; }
     void setTimerCallback(TimerCallback callback) { callback_ = std::move(callback); }
-
-    Nanoseconds interval() const { return interval_; }
-    void setInterval(const Nanoseconds &interval) { interval_ = interval; }
 
 private:
     TimerCallback callback_;
