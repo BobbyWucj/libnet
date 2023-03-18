@@ -1,5 +1,5 @@
-#include "libnet/TcpConnection.h"
-#include "libnet/TcpClient.h"
+#include "core/TcpConnection.h"
+#include "core/TcpClient.h"
 
 using namespace libnet;
 

@@ -1,5 +1,5 @@
-#include "libnet/TcpServer.h"
-#include "libnet/TcpConnection.h"
+#include "core/TcpServer.h"
+#include "core/TcpConnection.h"
 #include <map>
 
 using namespace libnet;

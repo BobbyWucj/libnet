@@ -1,8 +1,8 @@
 #ifndef EXAMPLE_WEBSERVER_HTTPPARSER_H
 #define EXAMPLE_WEBSERVER_HTTPPARSER_H
 
-#include "libnet/Timestamp.h"
-#include "libnet/base/copyable.h"
+#include "core/Timestamp.h"
+#include "utils/copyable.h"
 #include "HttpRequest.h"
 
 namespace libnet 

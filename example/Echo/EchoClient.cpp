@@ -1,9 +1,9 @@
 #include <iostream>
 #include <thread>
 
-#include "libnet/EventLoop.h"
-#include "libnet/InetAddress.h"
-#include "libnet/base/Logger.h"
+#include "core/EventLoop.h"
+#include "core/InetAddress.h"
+#include "logger/Logger.h"
 #include "EchoClient.h"
 
 using namespace libnet;

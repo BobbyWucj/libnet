@@ -1,1 +1,0 @@
-add_executable(webserver_client ServerClient.cpp)

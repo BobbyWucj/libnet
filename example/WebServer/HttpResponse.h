@@ -1,8 +1,8 @@
 #ifndef EXAMPLE_WEBSERVER_HTTPRESPONSE_H
 #define EXAMPLE_WEBSERVER_HTTPRESPONSE_H
 
-#include "libnet/Buffer.h"
-#include "libnet/base/copyable.h"
+#include "core/Buffer.h"
+#include "utils/copyable.h"
 #include <map>
 #include <string>
 #include <unordered_map>

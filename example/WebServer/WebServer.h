@@ -1,12 +1,12 @@
 #ifndef EXAMPLE_WEBSERVER_WEBSERVER_H
 #define EXAMPLE_WEBSERVER_WEBSERVER_H
 
-#include "libnet/Buffer.h"
-#include "libnet/Callbacks.h"
-#include "libnet/EventLoop.h"
-#include "libnet/InetAddress.h"
-#include "libnet/base/noncopyable.h"
-#include "libnet/TcpServer.h"
+#include "core/Buffer.h"
+#include "core/Callbacks.h"
+#include "core/EventLoop.h"
+#include "core/InetAddress.h"
+#include "utils/noncopyable.h"
+#include "core/TcpServer.h"
 #include "HttpResponse.h"
 #include <cstddef>
 #include <functional>

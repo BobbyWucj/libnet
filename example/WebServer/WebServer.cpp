@@ -2,11 +2,11 @@
 #include "HttpResponse.h"
 #include "HttpParser.h"
 #include "HttpRequest.h"
-#include "libnet/Callbacks.h"
-#include "libnet/Timestamp.h"
-#include "libnet/base/Logger.h"
-#include "libnet/Buffer.h"
-#include "libnet/TcpConnection.h"
+#include "core/Callbacks.h"
+#include "core/Timestamp.h"
+#include "logger/Logger.h"
+#include "core/Buffer.h"
+#include "core/TcpConnection.h"
 
 #include <any>
 #include <cstddef>

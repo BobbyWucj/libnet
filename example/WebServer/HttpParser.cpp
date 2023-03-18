@@ -1,5 +1,5 @@
 #include "HttpParser.h"
-#include "libnet/Buffer.h"
+#include "core/Buffer.h"
 
 #include <algorithm>
 
