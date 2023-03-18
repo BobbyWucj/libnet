@@ -36,7 +36,7 @@
 - 为减少内存泄露的可能，尽可能使用智能指针等 `RAII` 机制
 
 ## 并发模型
-![并发模型](./resources/Libnet-Concurrency-model.png)
+![并发模型](https://github.com/BobbyWucj/libnet/tree/main/resources/Libnet-Concurrency-model.png)
 
 ## Example
 
