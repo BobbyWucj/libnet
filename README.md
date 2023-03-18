@@ -48,16 +48,13 @@
 - [WebServer](https://github.com/BobbyWucj/libnet/tree/main/example/WebServer)
 - ...
 
-## Install
+## Build
 
 ```bash
 $ git clone git@github.com:BobbyWucj/libnet.git
 $ cd libnet
-$ ./build.sh 
-$ ./build.sh install
+$ ./build.sh [Debug/Release/clean]
 ```
-
-安装目录默认为 `../libnet-build/`
 
 ## References
 
