@@ -1,6 +1,6 @@
- #!/bin/bash
+#!/bin/bash
 
-# set -x
+set -x
 
 if [ $# -gt 1 ]; then
     echo "Invalid number of parameters"
@@ -31,7 +31,8 @@ cd $BUILD_DIR
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_INSTALL_PREFIX=$BUILD_DIR \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-      $SOURCE_DIR \
+      $SOURCE_DIR
+
 make && make install
 
 # Default : Build Debug & Release together
@@ -45,6 +46,7 @@ if [ $# -eq 0 ]; then
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
         -DCMAKE_INSTALL_PREFIX=$BUILD_DIR \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        $SOURCE_DIR \
+        $SOURCE_DIR
+
     make && make install
 fi
