@@ -1,7 +1,7 @@
 #include "core/Connector.h"
+#include "core/EventLoop.h"
 #include "core/InetAddress.h"
 #include "logger/Logger.h"
-#include "core/EventLoop.h"
 
 #include <cassert>
 #include <sys/socket.h>
@@ -9,8 +9,7 @@
 
 using namespace libnet;
 
-namespace
-{
+namespace {
 
 int creatSocket() {
     int ret = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -20,8 +19,7 @@ int creatSocket() {
     return ret;
 }
 
-} // anonymous namespace
-
+}  // anonymous namespace
 
 Connector::Connector(EventLoop* loop, const InetAddress& peer)
     : loop_(loop),
@@ -29,13 +27,11 @@ Connector::Connector(EventLoop* loop, const InetAddress& peer)
       cfd_(creatSocket()),
       connected_(false),
       started_(false),
-      channel_(loop, cfd_)
-{
+      channel_(loop, cfd_) {
     channel_.setWriteCallback([this]() { this->handleWrite(); });
 }
 
-Connector::~Connector()
-{
+Connector::~Connector() {
     if (!connected_) {
         ::close(cfd_);
     }
@@ -50,10 +46,12 @@ void Connector::start() {
     if (ret == -1) {
         if (errno != EINPROGRESS) {
             handleWrite();
-        } else {
+        }
+        else {
             channel_.enableWriting();
         }
-    } else {
+    }
+    else {
         handleWrite();
     }
 }
@@ -64,9 +62,9 @@ void Connector::handleWrite() {
 
     loop_->removeChannel(&channel_);
 
-    int err = 0;
+    int       err = 0;
     socklen_t len = sizeof(err);
-    int ret = ::getsockopt(cfd_, SOL_SOCKET, SO_ERROR, &err, &len);
+    int       ret = ::getsockopt(cfd_, SOL_SOCKET, SO_ERROR, &err, &len);
     if (ret == 0) {
         errno = err;
     }
@@ -75,7 +73,8 @@ void Connector::handleWrite() {
         if (errorCallback_) {
             errorCallback_();
         }
-    } else if (newConnectionCallback_) {
+    }
+    else if (newConnectionCallback_) {
         struct sockaddr_in addr;
         len = sizeof(addr);
         ret = ::getsockname(cfd_, reinterpret_cast<sockaddr*>(&addr), &len);
@@ -89,4 +88,3 @@ void Connector::handleWrite() {
         newConnectionCallback_(cfd_, local, peer_);
     }
 }
-

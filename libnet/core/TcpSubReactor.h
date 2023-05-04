@@ -11,27 +11,44 @@
 
 #include "core/TcpReactor.h"
 
-namespace libnet 
-{
+#include <condition_variable>
+#include <memory>
+#include <mutex>
+
+namespace libnet {
 
 class EventLoop;
 
-class TcpSubReactor : public TcpReactor 
+class TcpSubReactor : public TcpReactor
 {
 public:
     using ptr = std::unique_ptr<TcpSubReactor>;
+    using ThreadPtr = std::unique_ptr<std::thread>;
+    using ThreadPtrList = std::vector<ThreadPtr>;
+    using EventLoopList = std::vector<EventLoop*>;
 
-    TcpSubReactor(EventLoop* loop, const InetAddress& local, const Nanoseconds heartbeat);
+    TcpSubReactor(EventLoop* loop,
+                  const InetAddress& local,
+                  const Nanoseconds heartbeat);
     ~TcpSubReactor() = default;
 
+    void setNumThreads(size_t numThreads) override;
     void start() override;
 
 private:
-    void newConnection(int connfd, const InetAddress& local, const InetAddress& peer) override;
+    void newConnection(int connfd,
+                       const InetAddress& local,
+                       const InetAddress& peer) override;
     void closeConnection(const TcpConnectionPtr& conn) override;
-    void closeConnectionInLoop(const TcpConnectionPtr &connPtr) override;
+
+    void runInThread(const size_t index);
+
+    ThreadPtrList threads_;
+    EventLoopList eventLoops_;
+    std::mutex mutex_;
+    std::condition_variable cond_;
 };
 
-} // namespace libnet
+}  // namespace libnet
 
-#endif // LIBNET_TCPSERVERSINGLE_H
+#endif  // LIBNET_TCPSERVERSINGLE_H

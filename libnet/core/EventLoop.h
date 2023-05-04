@@ -1,18 +1,17 @@
 #ifndef LIBNET_EVENTLOOP_H
 #define LIBNET_EVENTLOOP_H
 
+#include "core/TimerQueue.h"
+#include "utils/noncopyable.h"
 #include <any>
 #include <atomic>
 #include <cstddef>
-#include <thread>
 #include <mutex>
-#include <vector>
 #include <sys/types.h>
-#include "utils/noncopyable.h"
-#include "core/TimerQueue.h"
+#include <thread>
+#include <vector>
 
-namespace libnet
-{
+namespace libnet {
 
 class EPoller;
 class Channel;
@@ -36,41 +35,38 @@ public:
 
     static EventLoop* getEventLoopOfCurrentThread();
 
-    void assertInLoopThread() const {
-        assert(isInLoopThread());
-    }
+    void assertInLoopThread() const { assert(isInLoopThread()); }
 
-    void assertNotInLoopThread() const {
-        assert(!isInLoopThread());
-    }
+    void assertNotInLoopThread() const { assert(!isInLoopThread()); }
 
     bool isInLoopThread() const;
 
     Timer::sptr runAt(Timestamp when, TimerCallback callback);
     Timer::sptr runAfter(Nanoseconds interval, TimerCallback callback);
     Timer::sptr runEvery(Nanoseconds interval, TimerCallback callback);
-    void cancelTimer(Timer::sptr timer);
+    void        cancelTimer(Timer::sptr timer);
 
     void wakeup();
+
 private:
     using ChannelList = std::vector<Channel*>;
-    using TaskList = std::vector<Task>;
+    using TaskList    = std::vector<Task>;
 
     void doPendingTasks();
     void handleRead();
 
-    const std::thread::id       tid_;
-    std::atomic<bool>           quit_;
-    std::unique_ptr<EPoller>    poller_;
-    ChannelList                 activeChannels_;
-    TimerQueue                  timerQueue_;
-    bool                        doingPendingTasks_;
-    TaskList                    pendingTasks_;
-    const int                   wakeupFd_;
-    std::unique_ptr<Channel>    wakeupChannel_;
-    mutable std::mutex          mutex_;
+    const std::thread::id    tid_;
+    std::atomic<bool>        quit_;
+    std::unique_ptr<EPoller> poller_;
+    ChannelList              activeChannels_;
+    TimerQueue               timerQueue_;
+    bool                     doingPendingTasks_;
+    TaskList                 pendingTasks_;
+    const int                wakeupFd_;
+    std::unique_ptr<Channel> wakeupChannel_;
+    mutable std::mutex       mutex_;
 };
 
-}
+}  // namespace libnet
 
-#endif // LIBNET_EVENTLOOP_H
+#endif  // LIBNET_EVENTLOOP_H

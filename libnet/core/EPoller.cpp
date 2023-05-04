@@ -1,19 +1,16 @@
-#include <unistd.h>
-#include <sys/epoll.h>
 #include <cassert>
+#include <sys/epoll.h>
+#include <unistd.h>
 
-#include "logger/Logger.h"
-#include "core/EventLoop.h"
 #include "core/EPoller.h"
+#include "core/EventLoop.h"
+#include "logger/Logger.h"
 
 using namespace libnet;
 
 EPoller::EPoller(EventLoop* loop)
-    : loop_(loop),
-      events_(128),
-      epollfd_(::epoll_create1(EPOLL_CLOEXEC))
-{
-    if(epollfd_ == -1) {
+    : loop_(loop), events_(128), epollfd_(::epoll_create1(EPOLL_CLOEXEC)) {
+    if (epollfd_ == -1) {
         LOG_SYSFATAL << "Epoller::epoll_create1()";
     }
 }
@@ -27,20 +24,22 @@ void EPoller::poll(ChannelList& activeChannels, int timeout) {
     loop_->assertInLoopThread();
     int max_events = static_cast<int>(events_.size());
     int num_events = epoll_wait(epollfd_, events_.data(), max_events, timeout);
-    if (num_events == -1){
+    if (num_events == -1) {
         if (errno != EINTR)
             LOG_SYSERR << "EPoller::poll()";
-    } else if (num_events > 0) {
+    }
+    else if (num_events > 0) {
         LOG_TRACE << num_events << " events happend";
         for (int i = 0; i < num_events; ++i) {
             Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
             channel->setRevents(events_[i].events);
             activeChannels.push_back(channel);
         }
-        if(num_events == max_events) {
+        if (num_events == max_events) {
             events_.resize(2 * events_.size());
         }
-    } else if(num_events == 0) {
+    }
+    else if (num_events == 0) {
         LOG_TRACE << "nothing happended";
     }
 }
@@ -53,9 +52,11 @@ void EPoller::updateChannel(Channel* channel) {
         assert(!channel->isNoneEvents());
         op = EPOLL_CTL_ADD;
         channel->setPolling(true);
-    } else if (!channel->isNoneEvents()) {
+    }
+    else if (!channel->isNoneEvents()) {
         op = EPOLL_CTL_MOD;
-    } else {
+    }
+    else {
         op = EPOLL_CTL_DEL;
         channel->setPolling(false);
     }
@@ -64,9 +65,9 @@ void EPoller::updateChannel(Channel* channel) {
 
 void EPoller::updateChannel(int op, Channel* channel) {
     struct epoll_event event;
-    event.events = channel->events();
+    event.events   = channel->events();
     event.data.ptr = channel;
-    int ret = ::epoll_ctl(epollfd_, op, channel->fd(), &event);
-    if(ret == -1)
+    int ret        = ::epoll_ctl(epollfd_, op, channel->fd(), &event);
+    if (ret == -1)
         LOG_SYSERR << "EPoller::updateChannel(op, channel)";
 }

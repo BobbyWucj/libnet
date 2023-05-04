@@ -1,33 +1,36 @@
 #ifndef LIBNET_TIMERQUEUE_H
 #define LIBNET_TIMERQUEUE_H
 
+#include "core/Channel.h"
+#include "core/Timer.h"
+#include "core/Timestamp.h"
 #include <any>
 #include <chrono>
 #include <cstdint>
-#include <memory>
-#include <vector>
-#include <queue>
 #include <deque>
-#include "core/Timer.h"
-#include "core/Channel.h"
-#include "core/Timestamp.h"
+#include <memory>
+#include <queue>
+#include <vector>
 
-namespace libnet
+namespace libnet {
+
+struct TimerCmp
 {
-
-struct TimerCmp {
     bool operator()(Timer::sptr lhs, Timer::sptr rhs) {
         return lhs->when() > rhs->when();
     }
 };
 
-class TimerQueue: noncopyable
+class TimerQueue : noncopyable
 {
 public:
     explicit TimerQueue(EventLoop* loop);
     ~TimerQueue();
 
-    Timer::sptr addTimer(TimerCallback cb, Timestamp when, Nanoseconds interval = Milliseconds::zero(), bool repeat = false);
+    Timer::sptr addTimer(TimerCallback cb,
+                         Timestamp     when,
+                         Nanoseconds   interval = Milliseconds::zero(),
+                         bool          repeat   = false);
 
     void cancelTimer(Timer::sptr timer);
 
@@ -47,18 +50,17 @@ public:
     int timerfd() const { return timerfd_; }
 
 private:
-    using TimerHeap = std::priority_queue<Timer::sptr, std::vector<Timer::sptr>, TimerCmp>;
+    using TimerHeap =
+        std::priority_queue<Timer::sptr, std::vector<Timer::sptr>, TimerCmp>;
 
     void handleRead();
 
     EventLoop* loop_;
-    const int timerfd_;
-    Channel timerChannel_;
-    TimerHeap timers_;
+    const int  timerfd_;
+    Channel    timerChannel_;
+    TimerHeap  timers_;
 };
 
+}  // namespace libnet
 
-} // namespace libnet
-
-
-#endif // LIBNET_TIMERQUEUE_H
+#endif  // LIBNET_TIMERQUEUE_H

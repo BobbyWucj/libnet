@@ -4,22 +4,20 @@
 #include <strings.h>
 #include <sys/socket.h>
 
-#include "logger/Logger.h"
 #include "core/InetAddress.h"
+#include "logger/Logger.h"
 
 using namespace libnet;
 
-InetAddress::InetAddress(uint16_t port, bool loopback)
-{
+InetAddress::InetAddress(uint16_t port, bool loopback) {
     bzero(&address_, sizeof(address_));
-    address_.sin_family = AF_INET;
-    in_addr_t ip = loopback ? INADDR_LOOPBACK : INADDR_ANY;
+    address_.sin_family      = AF_INET;
+    in_addr_t ip             = loopback ? INADDR_LOOPBACK : INADDR_ANY;
     address_.sin_addr.s_addr = htonl(ip);
-    address_.sin_port = htons(port);
+    address_.sin_port        = htons(port);
 }
 
-InetAddress::InetAddress(const std::string& ip, uint16_t port)
-{
+InetAddress::InetAddress(const std::string& ip, uint16_t port) {
     bzero(&address_, sizeof(address_));
     address_.sin_family = AF_INET;
     int ret = ::inet_pton(AF_INET, ip.c_str(), &address_.sin_addr.s_addr);
@@ -30,7 +28,7 @@ InetAddress::InetAddress(const std::string& ip, uint16_t port)
 }
 
 std::string InetAddress::toIp() const {
-    char buf[INET_ADDRSTRLEN];
+    char        buf[INET_ADDRSTRLEN];
     const char* ret = inet_ntop(AF_INET, &address_.sin_addr, buf, sizeof(buf));
     if (ret == nullptr) {
         buf[0] = '\0';

@@ -3,11 +3,10 @@
 
 #include "core/Callbacks.h"
 #include "core/Channel.h"
-#include "utils/noncopyable.h"
 #include "core/InetAddress.h"
+#include "utils/noncopyable.h"
 
-namespace libnet
-{
+namespace libnet {
 
 class EventLoop;
 
@@ -19,28 +18,28 @@ public:
 
     void start();
 
-    void setNewConnectionCallback(const NewConnectionCallback &newConnectionCallback) 
-    { newConnectionCallback_ = newConnectionCallback; }
+    void setNewConnectionCallback(
+        const NewConnectionCallback& newConnectionCallback) {
+        newConnectionCallback_ = newConnectionCallback;
+    }
 
-    void setErrorCallback(const ErrorCallback &errorCallback) 
-    { errorCallback_ = errorCallback; }
-
+    void setErrorCallback(const ErrorCallback& errorCallback) {
+        errorCallback_ = errorCallback;
+    }
 
 private:
     void handleWrite();
 
-    EventLoop* loop_;
-    const InetAddress peer_;
-    const int cfd_;
-    bool connected_;
-    bool started_;
-    Channel channel_;
+    EventLoop*            loop_;
+    const InetAddress     peer_;
+    const int             cfd_;
+    bool                  connected_;
+    bool                  started_;
+    Channel               channel_;
     NewConnectionCallback newConnectionCallback_;
-    ErrorCallback errorCallback_;
-
+    ErrorCallback         errorCallback_;
 };
 
+}  // namespace libnet
 
-}
-
-#endif // LIBNET_CONNECTOR_H
+#endif  // LIBNET_CONNECTOR_H

@@ -1,36 +1,34 @@
 #include <cassert>
 #include <memory>
-#include <sys/types.h>
+#include <numeric>
+#include <signal.h>
 #include <sys/eventfd.h>
+#include <sys/types.h>
+#include <syscall.h>
 #include <thread>
 #include <unistd.h>
-#include <syscall.h>
-#include <signal.h>
-#include <numeric>
 #include <utility>
 
 #include "core/EPoller.h"
+#include "core/EventLoop.h"
 #include "core/Timestamp.h"
 #include "logger/Logger.h"
-#include "core/EventLoop.h"
 
 using namespace libnet;
 
-namespace
-{
+namespace {
 
 __thread EventLoop* t_loopInThisThread = nullptr;
 
-class IgnoreSigPipe {
+class IgnoreSigPipe
+{
 public:
-    IgnoreSigPipe() {
-        ::signal(SIGPIPE, SIG_IGN);
-    }
+    IgnoreSigPipe() { ::signal(SIGPIPE, SIG_IGN); }
 };
 
 IgnoreSigPipe ignoreSigPipe;
 
-} // anonymous namespace
+}  // anonymous namespace
 
 EventLoop::EventLoop()
     : tid_(std::this_thread::get_id()),
@@ -39,18 +37,19 @@ EventLoop::EventLoop()
       timerQueue_(this),
       doingPendingTasks_(false),
       wakeupFd_(::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)),
-      wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_))
-{
+      wakeupChannel_(std::make_unique<Channel>(this, wakeupFd_)) {
     // FIXME : LOG tid
-    LOG_INFO << "EventLoop createt "  << this << "in thread ";
-    if(wakeupFd_ <= 0) {
+    LOG_INFO << "EventLoop createt " << this << " in thread ";
+    if (wakeupFd_ <= 0) {
         LOG_FATAL << "EventLoop::eventfd() fail to create";
     }
-    wakeupChannel_->setReadCallback([this]{handleRead();});
+    wakeupChannel_->setReadCallback([this] { handleRead(); });
     wakeupChannel_->enableReading();
-    if(t_loopInThisThread) {
-        LOG_FATAL << "Another EventLoop " << t_loopInThisThread << " exits in this thread";
-    } else {
+    if (t_loopInThisThread) {
+        LOG_FATAL << "Another EventLoop " << t_loopInThisThread
+                  << " exits in this thread";
+    }
+    else {
         t_loopInThisThread = this;
     }
 }
@@ -68,30 +67,30 @@ void EventLoop::loop() {
     assertInLoopThread();
     LOG_TRACE << "EventLoop " << this << " polling";
     quit_ = false;
-    while(!quit_) {
+    while (!quit_) {
         activeChannels_.clear();
 
         poller_->poll(activeChannels_);
-        
-        for(auto &channel : activeChannels_) {
+
+        for (auto& channel : activeChannels_) {
             channel->handleEvents();
         }
         doPendingTasks();
     }
-    LOG_TRACE << "EventLoop " << this<< " stop looping";
+    LOG_TRACE << "EventLoop " << this << " stop looping";
 }
 
 void EventLoop::quit() {
     assert(!quit_);
     quit_ = true;
-    if(!isInLoopThread())
+    if (!isInLoopThread())
         wakeup();
 }
 
 void EventLoop::updateChannel(Channel* channel) {
     assert(channel->ownerLoop() == this);
-    assertInLoopThread();
     poller_->updateChannel(channel);
+    assertInLoopThread();
     LOG_TRACE << "EventLoop " << this << " update Channel " << channel;
 }
 
@@ -106,17 +105,13 @@ Timer::sptr EventLoop::runAt(Timestamp when, TimerCallback callback) {
 }
 
 Timer::sptr EventLoop::runAfter(Nanoseconds interval, TimerCallback callback) {
-    return timerQueue_.addTimer(std::move(callback), 
-                                clock::now() + interval, 
-                                interval, 
-                                false);
+    return timerQueue_.addTimer(std::move(callback), clock::now() + interval,
+                                interval, false);
 }
 
 Timer::sptr EventLoop::runEvery(Nanoseconds interval, TimerCallback callback) {
-    return timerQueue_.addTimer(std::move(callback),
-                                clock::now() + interval,
-                                interval,
-                                true);
+    return timerQueue_.addTimer(std::move(callback), clock::now() + interval,
+                                interval, true);
 }
 
 void EventLoop::cancelTimer(Timer::sptr timer) {
@@ -126,7 +121,8 @@ void EventLoop::cancelTimer(Timer::sptr timer) {
 void EventLoop::runInLoop(const Task& task) {
     if (isInLoopThread()) {
         task();
-    } else {
+    }
+    else {
         queueInLoop(task);
     }
 }
@@ -134,7 +130,8 @@ void EventLoop::runInLoop(const Task& task) {
 void EventLoop::runInLoop(Task&& task) {
     if (isInLoopThread()) {
         task();
-    } else {
+    }
+    else {
         queueInLoop(std::move(task));
     }
 }
@@ -174,15 +171,17 @@ void EventLoop::doPendingTasks() {
 void EventLoop::wakeup() {
     uint64_t one = 1;
     ssize_t n = ::write(wakeupFd_, &one, sizeof(one));
-    if (n != sizeof(one)) 
-        LOG_SYSERR << "EventLoop::wakeup() should ::write " << sizeof(one) << " bytes";
+    if (n != sizeof(one))
+        LOG_SYSERR << "EventLoop::wakeup() should ::write " << sizeof(one)
+                   << " bytes";
 }
 
 void EventLoop::handleRead() {
     uint64_t one = 1;
     ssize_t n = ::read(wakeupFd_, &one, sizeof(one));
-    if(n != sizeof(one))
-        LOG_SYSERR << "EventLoop::wakeup() should ::read " << sizeof(one) << " bytes";
+    if (n != sizeof(one))
+        LOG_SYSERR << "EventLoop::wakeup() should ::read " << sizeof(one)
+                   << " bytes";
 }
 
 bool EventLoop::isInLoopThread() const {

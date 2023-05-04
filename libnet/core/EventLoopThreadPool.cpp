@@ -8,11 +8,7 @@
 using namespace libnet;
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, size_t numThreads)
-    : baseLoop_(baseLoop),
-      started_(false),
-      numThreads_(numThreads),
-      next_(0)
-{
+    : baseLoop_(baseLoop), started_(false), numThreads_(numThreads), next_(0) {
     if (numThreads <= 0) {
         LOG_SYSFATAL << "EventLoopThreadPool() : numThreads <= 0";
     }
@@ -31,10 +27,10 @@ void EventLoopThreadPool::start() {
 EventLoop* EventLoopThreadPool::getNextLoop() {
     baseLoop_->assertInLoopThread();
     assert(started_);
-    EventLoop *loop = baseLoop_;
+    EventLoop* loop = baseLoop_;
     // round-robin
     if (!loops_.empty()) {
-        loop = loops_[next_];
+        loop  = loops_[next_];
         next_ = (next_ + 1) % numThreads_;
     }
     return loop;

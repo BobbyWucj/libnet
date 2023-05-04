@@ -4,23 +4,22 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <endian.h>
 #include <string>
 #include <vector>
 
-namespace libnet
-{
+namespace libnet {
 
 class Buffer
 {
 public:
     static const size_t kCheapPrepend = 8;
-    static const size_t kInitialSize = 1024;
+    static const size_t kInitialSize  = 1024;
 
     explicit Buffer(size_t initialSize = kInitialSize)
         : buffer_(kCheapPrepend + initialSize),
           readerIndex_(kCheapPrepend),
-          writerIndex_(kCheapPrepend)
-    {
+          writerIndex_(kCheapPrepend) {
         assert(readableBytes() == 0);
         assert(writableBytes() == initialSize);
         assert(prependableBytes() == kCheapPrepend);
@@ -43,7 +42,7 @@ public:
         assert(writableBytes() >= len);
     }
 
-    char* beginWrite() { return begin() + writerIndex_; }
+    char*       beginWrite() { return begin() + writerIndex_; }
     const char* beginWrite() const { return begin() + writerIndex_; }
 
     void hasWritten(size_t len) {
@@ -53,9 +52,7 @@ public:
 
     const char* peek() const { return begin() + readerIndex_; }
 
-    const char* findCRLF() const {
-        return findCRLF(peek());
-    }
+    const char* findCRLF() const { return findCRLF(peek()); }
 
     const char* findCRLF(const char* start) const {
         assert(peek() <= start);
@@ -86,7 +83,8 @@ public:
         assert(len <= readableBytes());
         if (len < readableBytes()) {
             readerIndex_ += len;
-        } else {
+        }
+        else {
             retrieveAll();
         }
     }
@@ -97,19 +95,18 @@ public:
         retrieve(end - peek());
     }
 
-    void retrieveInt64() { retrieve(sizeof(int64_t)); }
-    void retrieveInt32() { retrieve(sizeof(int32_t)); }
-    void retrieveInt16() { retrieve(sizeof(int16_t)); }
-    void retrieveInt8() { retrieve(sizeof(int8_t)); }
+    template <typename T> void retrieveInt() { retrieve(sizeof(T)); }
 
-    std::string retrieveAllAsString(size_t len) {
+    std::string retrieveAsString(size_t len) {
         assert(len <= readableBytes());
         std::string result(peek(), len);
         retrieve(len);
         return result;
     }
 
-    std::string retrieveAllAsString() { return retrieveAllAsString(readableBytes()); }
+    std::string retrieveAllAsString() {
+        return retrieveAsString(readableBytes());
+    }
 
     void append(const char* data, size_t len) {
         ensureWritableBytes(len);
@@ -117,122 +114,62 @@ public:
         hasWritten(len);
     }
 
-    void append(const std::string& data) { append(data.c_str(), data.length()); }
-    void append(const void* data, size_t len) { append(static_cast<const char*>(data), len); }
-
-    void appendInt64(int64_t x) {
-        int64_t be64 = htobe64(x);
-        append(&be64, sizeof(be64));
+    void append(const std::string& data) {
+        append(data.c_str(), data.length());
+    }
+    void append(const void* data, size_t len) {
+        append(static_cast<const char*>(data), len);
     }
 
-    void appendInt32(int32_t x) {
-        int32_t be32 = htobe32(x);
-        append(&be32, sizeof(be32));
-    }
-
-    void appendInt16(int16_t x) {
-        int16_t be16 = htobe16(x);
-        append(&be16, sizeof(be16));
-    }
-
-    void appendInt8(int8_t x) {
-        append(&x, sizeof(x));
+    template <typename T> void appendInt(T x) {
+        T be = htobe(x);
+        append(&be, sizeof(be));
     }
 
     // read : 窥探数据并移除
-    int64_t readInt64() {
-        int64_t result = peekInt64();
-        retrieveInt64();
-        return result;
-    }
-
-    int32_t readInt32() {
-        int32_t result = peekInt32();
-        retrieveInt32();
-        return result;
-    }
-
-    int16_t readInt16() {
-        int16_t result = peekInt16();
-        retrieveInt16();
-        return result;
-    }
-
-    int8_t readInt8() {
-        int8_t result = peekInt8();
-        retrieveInt8();
+    template <typename T> T readInt() {
+        T result = peekInt<T>();
+        retrieveInt<T>();
         return result;
     }
 
     // peek : 窥探数据，不移除
-    int64_t peekInt64() const {
-        assert(readableBytes() >= sizeof(int64_t));
-        int64_t be64 = 0;
-        ::memcpy(&be64, peek(), sizeof(be64));
-        return be64toh(be64);
-    }
-
-    int32_t peekInt32() const {
-        assert(readableBytes() >= sizeof(int32_t));
-        int32_t be32 = 0;
-        ::memcpy(&be32, peek(), sizeof(be32));
-        return be32toh(be32);
-    }
-
-    int16_t peekInt16() const {
-        assert(readableBytes() >= sizeof(int16_t));
-        int16_t be16 = 0;
-        ::memcpy(&be16, peek(), sizeof(be16));
-        return be16toh(be16);
-    }
-
-    int8_t peekInt8() const {
-        assert(readableBytes() >= sizeof(int8_t));
-        int8_t x = *peek();
-        return x;
+    template <typename T> T peekInt() const {
+        assert(readableBytes() >= sizeof(T));
+        T be = 0;
+        ::memcpy(&be, peek(), sizeof(be));
+        return betoh(be);
     }
 
     // prepend : 将 data 插入前置空间
-    void prepend(const void *data, size_t len) {
+    void prepend(const void* data, size_t len) {
         assert(len <= prependableBytes());
         readerIndex_ -= len;
-        auto d = static_cast<const char *>(data);
+        auto d = static_cast<const char*>(data);
         std::copy(d, d + len, begin() + readerIndex_);
     }
 
-    void prependInt64(int64_t x) {
-        int64_t be64 = htobe64(x);
-        prepend(&be64, sizeof(be64));
-    }
+    void prepend(const std::string& str) { prepend(str.c_str(), str.size()); }
 
-    void prependInt32(int32_t x) {
-        int32_t be32 = htobe32(x);
-        prepend(&be32, sizeof(be32));
-    }
-
-    void prependInt16(int16_t x) {
-        int16_t be16 = htobe16(x);
-        prepend(&be16, sizeof(be16));
-    }
-
-    void prependInt8(int8_t x) { 
-        prepend(&x, sizeof(x)); 
+    template <typename T> void prependInt(T x) {
+        T be = htobe(x);
+        prepend(&be, sizeof(be));
     }
 
     ssize_t readFd(int fd, int* savedErrno);
 
 private:
-    char* begin() { return &*buffer_.begin(); }
+    char*       begin() { return &*buffer_.begin(); }
     const char* begin() const { return &*buffer_.begin(); }
 
     void makeSpace(size_t len) {
         if (writableBytes() + prependableBytes() < len + kCheapPrepend) {
             buffer_.resize(writerIndex_ + len);
-        } else {
+        }
+        else {
             assert(kCheapPrepend < readerIndex_);
             size_t readable = readableBytes();
-            std::copy(begin() + readerIndex_, 
-                      begin() + writerIndex_, 
+            std::copy(begin() + readerIndex_, begin() + writerIndex_,
                       begin() + kCheapPrepend);
             readerIndex_ = kCheapPrepend;
             writerIndex_ = readerIndex_ + readable;
@@ -240,13 +177,53 @@ private:
         }
     }
 
+    template <typename T> T htobe(T value) const {
+        if constexpr (sizeof(T) == 1) {
+            return value;
+        }
+        else if constexpr (sizeof(T) == 2) {
+            return htobe16(value);
+        }
+        else if constexpr (sizeof(T) == 4) {
+            return htobe32(value);
+        }
+        else if constexpr (sizeof(T) == 8) {
+            return htobe64(value);
+        }
+        else {
+            static_assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 ||
+                              sizeof(T) == 8,
+                          "Unsupported size");
+        }
+    }
+
+    template <typename T> T betoh(T value) const {
+        if constexpr (sizeof(T) == 1) {
+            return value;
+        }
+        else if constexpr (sizeof(T) == 2) {
+            return be16toh(value);
+        }
+        else if constexpr (sizeof(T) == 4) {
+            return be32toh(value);
+        }
+        else if constexpr (sizeof(T) == 8) {
+            return be64toh(value);
+        }
+        else {
+            static_assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 ||
+                              sizeof(T) == 8,
+                          "Unsupported size");
+        }
+    }
+
     std::vector<char> buffer_;
-    size_t readerIndex_;
-    size_t writerIndex_;
+    size_t            readerIndex_;
+    size_t            writerIndex_;
 
     static const char kCRLF[];
 };
 
-} // namespace libnet
+}  // namespace libnet
 
-#endif // LIBNET_BUFFER_H
+#endif  // LIBNET_BUFFER_H

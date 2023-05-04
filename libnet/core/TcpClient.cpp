@@ -2,8 +2,8 @@
 #include "core/Callbacks.h"
 #include "core/Connector.h"
 #include "core/InetAddress.h"
-#include "logger/Logger.h"
 #include "core/TcpConnection.h"
+#include "logger/Logger.h"
 #include <cassert>
 #include <memory>
 
@@ -15,19 +15,14 @@ TcpClient::TcpClient(EventLoop* loop, const InetAddress& peer)
       peer_(peer),
       connector_(std::make_unique<Connector>(loop, peer)),
       connectionCallback_(defaultConnectionCallback),
-      messageCallback_(defaultMessageCallback)
-{
-    connector_->setNewConnectionCallback([this](int connfd, const InetAddress& l, const InetAddress& p)
-                                        {
-                                            this->newConnection(connfd, l, p);
-                                        });
+      messageCallback_(defaultMessageCallback) {
+    connector_->setNewConnectionCallback(
+        [this](int connfd, const InetAddress& l, const InetAddress& p) {
+            this->newConnection(connfd, l, p);
+        });
 }
 
-TcpClient::~TcpClient()
-{
-    if (connection_ && !connection_->disconnected()) {
-        connection_->forceClose();
-    }
+TcpClient::~TcpClient() {
     if (retryTimer_ != nullptr) {
         loop_->cancelTimer(retryTimer_);
     }
@@ -48,29 +43,30 @@ void libnet::TcpClient::retry() {
     LOG_WARN << "TcpClient::retry() reconnecting " << peer_.toIpPort() << "...";
 
     connector_ = std::make_unique<Connector>(loop_, peer_);
-    connector_->setNewConnectionCallback([this](auto connfd, auto local, auto peer)
-                                        {
-                                            this->newConnection(connfd, local, peer);
-                                        });
+    connector_->setNewConnectionCallback(
+        [this](auto connfd, auto local, auto peer) {
+            this->newConnection(connfd, local, peer);
+        });
     connector_->start();
 }
 
-void TcpClient::newConnection(int connfd, const InetAddress& local, const InetAddress& peer) {
+void TcpClient::newConnection(int                connfd,
+                              const InetAddress& local,
+                              const InetAddress& peer) {
     loop_->assertInLoopThread();
     loop_->cancelTimer(retryTimer_);
     retryTimer_.reset();
     connected_ = true;
 
-    auto conn = std::make_shared<TcpConnection>(loop_, connfd, local, peer, 10s);
+    auto conn =
+        std::make_shared<TcpConnection>(loop_, connfd, local, peer, 10s);
     connection_ = conn;
+    conn->setConnectionCallback(connectionCallback_);
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
-    conn->setCloseCallback([this](auto connptr)
-                            {
-                                this->closeConnection(connptr);
-                            });
+    conn->setCloseCallback(
+        [this](auto connptr) { this->closeConnection(connptr); });
     conn->connectionEstablished();
-    connectionCallback_(conn);
 }
 
 void TcpClient::closeConnection(const TcpConnectionPtr& conn) {
@@ -79,4 +75,3 @@ void TcpClient::closeConnection(const TcpConnectionPtr& conn) {
     connection_.reset();
     connectionCallback_(conn);
 }
-

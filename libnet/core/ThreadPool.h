@@ -11,9 +11,7 @@
 #include <thread>
 #include <vector>
 
-
-namespace libnet
-{
+namespace libnet {
 
 class ThreadPool : noncopyable
 {
@@ -27,8 +25,7 @@ public:
     void runTask(Task&& task);
 
     void stop();
-    size_t numThreads() const
-    { return threads_.size(); }
+    size_t numThreads() const { return threads_.size(); }
 
 private:
     void runInThread(size_t index);
@@ -45,9 +42,8 @@ private:
     const size_t maxQueueSize_;
     std::atomic_bool running_;
     ThreadInitCallback threadInitCallback_;
-
 };
 
-}
+}  // namespace libnet
 
-#endif // LIBNET_THREADPOOL_H
+#endif  // LIBNET_THREADPOOL_H

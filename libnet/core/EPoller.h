@@ -1,11 +1,10 @@
 #ifndef LIBNET_EPOLLER_H
 #define LIBNET_EPOLLER_H
 
-#include <vector>
 #include "utils/noncopyable.h"
+#include <vector>
 
-namespace libnet
-{
+namespace libnet {
 
 class EventLoop;
 class Channel;
@@ -14,7 +13,7 @@ class EPoller : noncopyable
 {
 public:
     using ChannelList = std::vector<Channel*>;
-    using EventList = std::vector<struct epoll_event>;
+    using EventList   = std::vector<struct epoll_event>;
 
     explicit EPoller(EventLoop* loop);
     ~EPoller();
@@ -25,12 +24,11 @@ public:
 private:
     void updateChannel(int op, Channel* channel);
 
-    EventLoop*  loop_;
-    EventList   events_;
-    int         epollfd_;
+    EventLoop* loop_;
+    EventList  events_;
+    int        epollfd_;
 };
 
+}  // namespace libnet
 
-} // namespace of libnet
-
-#endif // LIBNET_EPOLLER_H
+#endif  // LIBNET_EPOLLER_H
