@@ -1,5 +1,5 @@
-#include "core/TcpConnection.h"
 #include "core/TcpClient.h"
+#include "core/TcpConnection.h"
 
 using namespace libnet;
 
@@ -16,6 +16,6 @@ public:
 
 private:
     TcpConnectionPtr conn_;
-    EventLoop* loop_;
-    TcpClient client_;
+    EventLoop*       loop_;
+    TcpClient        client_;
 };

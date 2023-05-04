@@ -1,5 +1,5 @@
-#include "core/TcpServer.h"
 #include "core/TcpConnection.h"
+#include "core/TcpServer.h"
 #include <map>
 
 using namespace libnet;
@@ -7,7 +7,10 @@ using namespace libnet;
 class EchoServer
 {
 public:
-    EchoServer(EventLoop* loop, const InetAddress& addr, size_t numThread = 1, Nanoseconds timeout = 5s);
+    EchoServer(EventLoop*         loop,
+               const InetAddress& addr,
+               size_t             numThread = 1,
+               Nanoseconds        timeout   = 5s);
     ~EchoServer();
 
     void start();
@@ -25,10 +28,10 @@ private:
 private:
     using ConnectionList = std::map<TcpConnectionPtr, Timestamp>;
 
-    EventLoop* loop_;
-    TcpServer server_;
-    const size_t numThread_;
+    EventLoop*        loop_;
+    TcpServer         server_;
+    const size_t      numThread_;
     const Nanoseconds timeout_;
-    Timer::sptr timer_;
-    ConnectionList connections_;
+    Timer::sptr       timer_;
+    ConnectionList    connections_;
 };

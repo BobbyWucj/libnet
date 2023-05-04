@@ -1,35 +1,32 @@
 #include <cstddef>
 #include <functional>
 
+#include "EchoServer.h"
 #include "core/Callbacks.h"
 #include "core/EventLoop.h"
 #include "logger/Logger.h"
-#include "EchoServer.h"
 
 using namespace std::placeholders;
 
-EchoServer::EchoServer(EventLoop* loop, const InetAddress& addr, size_t numThread, Nanoseconds timeout)
+EchoServer::EchoServer(EventLoop* loop,
+                       const InetAddress& addr,
+                       size_t numThread,
+                       Nanoseconds timeout)
     : loop_(loop),
       server_(loop, addr),
       numThread_(numThread),
       timeout_(timeout),
-      timer_(loop_->runEvery(timeout_, [this](){ this->onTimeout(); }))
-{
-    server_.setConnectionCallback(std::bind(
-        &EchoServer::onConnection, this, _1
-    ));
+      timer_(loop_->runEvery(timeout_, [this]() { this->onTimeout(); })) {
+    server_.setConnectionCallback(
+        std::bind(&EchoServer::onConnection, this, _1));
 
-    server_.setMessageCallback(std::bind(
-        &EchoServer::onMessage, this, _1, _2
-    ));
+    server_.setMessageCallback(std::bind(&EchoServer::onMessage, this, _1, _2));
 
-    server_.setWriteCompleteCallback(std::bind(
-        &EchoServer::onWriteComplete, this, _1
-    ));
+    server_.setWriteCompleteCallback(
+        std::bind(&EchoServer::onWriteComplete, this, _1));
 }
 
-EchoServer::~EchoServer()
-{
+EchoServer::~EchoServer() {
     loop_->cancelTimer(timer_);
 }
 
@@ -41,11 +38,10 @@ void EchoServer::start() {
 void EchoServer::onConnection(const TcpConnectionPtr& conn) {
     if (conn->connected()) {
         conn->setHighWaterMarkCallback(
-            std::bind(&EchoServer::onHighWaterMark, this, _1, _2), 
-            1024
-        );
+            std::bind(&EchoServer::onHighWaterMark, this, _1, _2), 1024);
         expireAfter(conn, timeout_);
-    } else {
+    }
+    else {
         connections_.erase(conn);
     }
 }
@@ -69,37 +65,39 @@ void EchoServer::onWriteComplete(const TcpConnectionPtr& conn) {
     }
 }
 
-void EchoServer::expireAfter(const TcpConnectionPtr& conn, const Nanoseconds interval) {
+void EchoServer::expireAfter(const TcpConnectionPtr& conn,
+                             const Nanoseconds interval) {
     connections_[conn] = clock::nowAfter(interval);
 }
 
 void EchoServer::onTimeout() {
-    for (auto it = connections_.begin(); it != connections_.end(); ) {
+    for (auto it = connections_.begin(); it != connections_.end();) {
         if (it->second <= clock::now()) {
-            LOG_INFO << "connection " << it->first->name() << "  timeout force close";
+            LOG_INFO << "connection " << it->first->name()
+                     << "  timeout force close";
             it->first->forceClose();
             it = connections_.erase(it);
-        } else {
+        }
+        else {
             ++it;
         }
     }
 }
 
-int main()
-{
-    Logger::setLogLevel(Logger::ERROR);
+int main() {
+    Logger::setLogLevel(Logger::TRACE);
     EventLoop loop;
     InetAddress addr(9877);
 
     EchoServer server(&loop, addr, 1, 5s);
     server.start();
 
-    loop.runAfter(100s, [&](){
+    loop.runAfter(1000s, [&]() {
         int countdown = 5;
-        LOG_INFO << "server quit after "<< countdown << " second...";
+        LOG_INFO << "server quit after " << countdown << " second...";
         loop.runEvery(1s, [&, countdown]() mutable {
             --countdown;
-            LOG_INFO << "server quit after "<< countdown << " second...";
+            LOG_INFO << "server quit after " << countdown << " second...";
             if (countdown == 0)
                 loop.quit();
         });
@@ -107,4 +105,3 @@ int main()
 
     loop.loop();
 }
-
