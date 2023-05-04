@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)    # define the minimum required version of CMake to be used
+CMAKE_MINIMUM_REQUIRED(VERSION 3.14)    # define the minimum required version of CMake to be used
 SET(BUILD_SHARED_LIBS OFF)              # We expect external libraries to be linked statically.
 SET(CMAKE_CXX_STANDARD 17)              # Compile as C++17. GoogleTest requires at least C++14
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)     # Require C++17 support.
@@ -19,6 +19,7 @@ SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
 SET(LIBNET_SRC_DIR ${PROJECT_SOURCE_DIR}/libnet)
 SET(LIBNET_ECHO_DIR ${PROJECT_SOURCE_DIR}/example/Echo)
 SET(LIBNET_WEBSERVER_DIR ${PROJECT_SOURCE_DIR}/example/WebServer)
+SET(LIBNET_TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
 ### Build
 SET(CMAKE_COMPILER_FLAG -O3 -Wall -Wextra -pedantic)
@@ -94,3 +95,47 @@ TARGET_INCLUDE_DIRECTORIES(
         PUBLIC ${LIBNET_SRC_DIR}
         PUBLIC ${LIBNET_WEBSERVER_DIR}
 )
+
+# Build the web client
+FILE(GLOB LIBNET_WEB_CLIENT_SOURCE RELATIVE ${CMAKE_SOURCE_DIR} "example/WebServer/test/*.cpp")
+
+ADD_EXECUTABLE(web_client ${LIBNET_WEB_CLIENT_SOURCE})
+TARGET_LINK_LIBRARIES(web_client libnet)
+TARGET_LINK_LIBRARIES(web_client logger)
+
+TARGET_COMPILE_OPTIONS(web_client PRIVATE ${CMAKE_COMPILER_FLAG})
+TARGET_INCLUDE_DIRECTORIES(
+        web_client
+        PUBLIC ${LIBNET_SRC_DIR}
+        PUBLIC ${LIBNET_WEBSERVER_DIR}
+        PUBLIC ${LIBNET_WEBSERVER_DIR}/test
+)
+
+# # fetch the Catch2 from github
+# INCLUDE(FetchContent)
+
+# FetchContent_Declare(
+#         Catch2
+#         GIT_REPOSITORY git@github.com:catchorg/Catch2.git
+#         GIT_TAG        v3.3.0 # or a later release
+# )
+
+# FetchContent_MakeAvailable(Catch2)
+
+# # automatic discover and run all the tests with 'ctest' or 'make test'
+# LIST(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+# INCLUDE(CTest)
+# INCLUDE(Catch)
+
+# ADD_EXECUTABLE(BufferTest ${LIBNET_TEST_DIR}/core/BufferTest.cpp)
+# TARGET_LINK_LIBRARIES(BufferTest PRIVATE Catch2::Catch2WithMain libnet)
+
+# ADD_EXECUTABLE(EPollerTest ${LIBNET_TEST_DIR}/core/EPollerTest.cpp)
+# TARGET_LINK_LIBRARIES(EPollerTest PRIVATE Catch2::Catch2WithMain libnet logger)
+
+# ADD_EXECUTABLE(AcceptorTest ${LIBNET_TEST_DIR}/core/AcceptorTest.cpp)
+# TARGET_LINK_LIBRARIES(AcceptorTest PRIVATE Catch2::Catch2WithMain libnet logger)
+
+# CATCH_DISCOVER_TESTS(BufferTest)
+# CATCH_DISCOVER_TESTS(EPollerTest)
+# CATCH_DISCOVER_TESTS(AcceptorTest)
