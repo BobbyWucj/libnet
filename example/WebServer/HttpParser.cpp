@@ -18,28 +18,34 @@ bool HttpParser::parseRequest(Buffer& buf) {
                     // request_.setReceiveTime(receiveTime);
                     buf.retrieveUntil(crlf + 2);
                     state_ = kExpectHeaders;
-                } else {
+                }
+                else {
                     hasMore = false;
                 }
-            } else {
+            }
+            else {
                 hasMore = false;
             }
-        } else if (state_ == kExpectHeaders) {
+        }
+        else if (state_ == kExpectHeaders) {
             const char* crlf = buf.findCRLF();
             if (crlf) {
                 const char* colon = std::find(buf.peek(), crlf, ':');
                 if (colon != crlf) {
                     request_.addHeader(buf.peek(), colon, crlf);
-                } else {
+                }
+                else {
                     // empty line, end of header
                     state_ = kGotAll;
                     hasMore = false;
                 }
                 buf.retrieveUntil(crlf + 2);
-            } else {
+            }
+            else {
                 hasMore = false;
             }
-        } else if (state_ == kExpectBody) {
+        }
+        else if (state_ == kExpectBody) {
             // 不解析 Body，只管读入
         }
     }
@@ -53,7 +59,7 @@ bool HttpParser::processRequestLine(const char* begin, const char* end) {
     const char* space = std::find(start, end, ' ');
     // Method
     if (space != end && request_.setMethod(start, space)) {
-        start = space+1;
+        start = space + 1;
         space = std::find(start, end, ' ');
 
         if (space != end) {
@@ -62,18 +68,21 @@ bool HttpParser::processRequestLine(const char* begin, const char* end) {
             if (question != space) {
                 request_.setPath(start, question);
                 request_.setQuery(question, space);
-            } else {
+            }
+            else {
                 request_.setPath(start, space);
             }
             // Version
-            start = space+1;
-            succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
+            start = space + 1;
+            succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
             if (succeed) {
-                if (*(end-1) == '1') {
+                if (*(end - 1) == '1') {
                     request_.setVersion(HttpRequest::kHttp11);
-                } else if (*(end-1) == '0') {
+                }
+                else if (*(end - 1) == '0') {
                     request_.setVersion(HttpRequest::kHttp10);
-                } else {
+                }
+                else {
                     succeed = false;
                 }
             }

@@ -1,7 +1,7 @@
-#include "WebServer.h"
 #include "HttpParser.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
+#include "WebServer.h"
 #include "core/EventLoop.h"
 #include "core/InetAddress.h"
 #include "logger/Logger.h"
@@ -15,15 +15,14 @@
 using namespace webserver;
 using namespace libnet;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     Logger::setLogLevel(Logger::INFO);
-    size_t numThreads = 1; // need to be larger than 0
+    size_t numThreads = 1;  // need to be larger than 0
     bool disableReusePort = false;
     if (argc > 1) {
-        for(int i = 1; i < argc; ++i) {
+        for (int i = 1; i < argc; ++i) {
             const char* argument = argv[i];
-            if(strcmp(argument, "-t") == 0) {
+            if (strcmp(argument, "-t") == 0) {
                 if (++i == argc) {
                     LOG_SYSFATAL << "main() : argv error!";
                 }
@@ -32,9 +31,11 @@ int main(int argc, char* argv[])
                 //     LOG_SYSERR << "main() : numThreads less than 0!";
                 //     numThreads = 1;
                 // }
-            } else if(strcmp(argument, "-r") == 0) {
+            }
+            else if (strcmp(argument, "-r") == 0) {
                 disableReusePort = true;
-            } else {
+            }
+            else {
                 LOG_ERROR << "main() : argv not recognized!";
             }
         }

@@ -1,19 +1,17 @@
 #ifndef EXAMPLE_WEBSERVER_HTTPPARSER_H
 #define EXAMPLE_WEBSERVER_HTTPPARSER_H
 
+#include "HttpRequest.h"
 #include "core/Timestamp.h"
 #include "utils/copyable.h"
-#include "HttpRequest.h"
 
-namespace libnet 
-{
+namespace libnet {
 
 class Buffer;
 
 }
 
-namespace webserver 
-{
+namespace webserver {
 
 using libnet::Buffer;
 using libnet::Timestamp;
@@ -28,15 +26,11 @@ public:
         kGotAll,
     };
 
-    HttpParser()
-        : state_(kExpectRequestLine)
-    { }
+    HttpParser() : state_(kExpectRequestLine) {}
 
     bool parseRequest(Buffer& buf);
 
-    bool gotAll() const {
-        return state_ == kGotAll;
-    }
+    bool gotAll() const { return state_ == kGotAll; }
 
     void reset() {
         state_ = kExpectRequestLine;
@@ -54,6 +48,6 @@ private:
     HttpRequest request_;
 };
 
-} // namespace webserver
+}  // namespace webserver
 
-#endif // EXAMPLE_WEBSERVER_HTTPPARSER_H
+#endif  // EXAMPLE_WEBSERVER_HTTPPARSER_H

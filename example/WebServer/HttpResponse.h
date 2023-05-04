@@ -7,16 +7,13 @@
 #include <string>
 #include <unordered_map>
 
-
 namespace libnet {
 
 class Buffer;
 
-} // namespace libnet
+}  // namespace libnet
 
-
-namespace webserver 
-{
+namespace webserver {
 
 using libnet::Buffer;
 using std::map;
@@ -39,32 +36,31 @@ public:
     static std::unordered_map<int, std::string> statusMessageMap;
 
     explicit HttpResponse(bool closeConnection)
-        : statusCode_(kUnknown),
-          closeConnection_(closeConnection)
-    { }
+        : statusCode_(kUnknown), closeConnection_(closeConnection) {}
 
-    void setStatusCode(const HttpStatusCode &statusCode) 
-    { statusCode_ = statusCode; }
+    void setStatusCode(const HttpStatusCode& statusCode) {
+        statusCode_ = statusCode;
+    }
 
-    void setStatusMessage(const string &statusMessage) 
-    { statusMessage_ = statusMessage; }
+    void setStatusMessage(const string& statusMessage) {
+        statusMessage_ = statusMessage;
+    }
 
     bool closeConnection() const { return closeConnection_; }
-    void setCloseConnection(bool closeConnection) 
-    { closeConnection_ = closeConnection; }
+    void setCloseConnection(bool closeConnection) {
+        closeConnection_ = closeConnection;
+    }
 
-    void setBody(const string &body) { body_ = body; }
+    void setBody(const string& body) { body_ = body; }
 
     void addHeader(const string& field, const string& value) {
         headers_[field] = value;
     }
 
-    void eraseHeaders() {
-        headers_.clear();
-    }
+    void eraseHeaders() { headers_.clear(); }
 
-    void setContentType(const string& contentType) { 
-        addHeader("Content-Type", contentType); 
+    void setContentType(const string& contentType) {
+        addHeader("Content-Type", contentType);
     }
 
     void appendToBuffer(Buffer& output) const;
@@ -77,7 +73,6 @@ private:
     string body_;
 };
 
+}  // namespace webserver
 
-}
-
-#endif // EXAMPLE_WEBSERVER_HTTPRESPONSE_H
+#endif  // EXAMPLE_WEBSERVER_HTTPRESPONSE_H
